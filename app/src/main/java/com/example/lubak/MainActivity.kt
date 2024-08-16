@@ -66,7 +66,7 @@ class MainActivity : ComponentActivity() {
                             selected = false,
                             onClick = {})
                     }
-                },
+                }, gesturesEnabled = !drawerState.isClosed,
 
                 ) {
 
@@ -90,8 +90,8 @@ fun LubakMap(modifier: Modifier = Modifier) {
         modifier = modifier,
         mapViewportState = MapViewportState().apply {
             setCameraOptions {
-                zoom(1.0)
-                center(Point.fromLngLat(-98.0, 39.5))
+                zoom(12.0)
+                center(Point.fromLngLat(121.0244, 14.5547))
                 pitch(0.0)
                 bearing(0.0)
             }
