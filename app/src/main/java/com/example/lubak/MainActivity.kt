@@ -12,36 +12,31 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.lubak.ui.theme.LubakTheme
+import com.mapbox.geojson.Point
+import com.mapbox.maps.MapboxExperimental
+import com.mapbox.maps.extension.compose.MapboxMap
+import com.mapbox.maps.extension.compose.animation.viewport.MapViewportState
+
 
 class MainActivity : ComponentActivity() {
+    @OptIn(MapboxExperimental::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            LubakTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+            MapboxMap(
+                Modifier.fillMaxSize(),
+                mapViewportState = MapViewportState().apply {
+                    setCameraOptions {
+                        zoom(2.0)
+                        center(Point.fromLngLat(-98.0, 39.5))
+                        pitch(0.0)
+                        bearing(0.0)
+                    }
+                },
+            )
+
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    LubakTheme {
-        Greeting("Android")
-    }
-}
