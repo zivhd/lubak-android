@@ -26,7 +26,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.lubak.ui.theme.LubakTheme
+import com.example.compose.LubakTheme
 import com.mapbox.geojson.Point
 import com.mapbox.maps.MapboxExperimental
 import com.mapbox.maps.extension.compose.MapboxMap
@@ -80,7 +80,6 @@ fun HomeScreen(navController: NavController){
 @OptIn(MapboxExperimental::class)
 @Composable
 fun LubakMap(modifier: Modifier = Modifier) {
-    val text= "lol"
     MapboxMap(
         modifier = modifier,
         mapViewportState = MapViewportState().apply {

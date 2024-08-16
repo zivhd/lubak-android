@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation("com.mapbox.maps:android:11.5.1")
     implementation("com.mapbox.extension:maps-compose:11.5.1")
+    implementation(libs.androidx.ui.text.google.fonts)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

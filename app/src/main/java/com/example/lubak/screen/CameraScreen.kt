@@ -33,29 +33,33 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import com.example.compose.LubakTheme
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 @Composable
 fun CameraScreen() {
-    var hasCameraPermission by remember { mutableStateOf(false) }
-    val context = LocalContext.current
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        hasCameraPermission = isGranted
+    LubakTheme{
+        var hasCameraPermission by remember { mutableStateOf(false) }
+        val context = LocalContext.current
+        val launcher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            hasCameraPermission = isGranted
+        }
+        LaunchedEffect(key1 = Unit) {
+            hasCameraPermission = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        }
+        if (hasCameraPermission) {
+            CameraPreviewScreen()
+        } else {
+            CameraPermissionNeeded(launcher)
+        }
     }
-    LaunchedEffect(key1 = Unit) {
-        hasCameraPermission = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.CAMERA
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-    if (hasCameraPermission) {
-        CameraPreviewScreen()
-    } else {
-        CameraPermissionNeeded(launcher)
-    }
+
 
 }
 
