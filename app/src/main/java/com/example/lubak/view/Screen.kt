@@ -1,4 +1,4 @@
-package com.example.lubak.screen
+package com.example.lubak.view
 
 sealed class Screen(val route: String) {
     object HomeScreen : Screen("home_screen")

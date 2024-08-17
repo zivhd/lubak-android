@@ -1,4 +1,4 @@
-package com.example.lubak.screen
+package com.example.lubak.view
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding

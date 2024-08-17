@@ -1,4 +1,4 @@
-package com.example.lubak.screen
+package com.example.lubak.view
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -29,6 +29,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.os.Build
 import android.provider.MediaStore
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -36,33 +37,34 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.lubak.viewmodel.CameraViewModel
 
 @Composable
-fun CameraScreen() {
+fun CameraScreen(cameraViewModel: CameraViewModel = viewModel()) {
     LubakTheme {
-        var hasCameraPermission by remember { mutableStateOf(false) }
         val context = LocalContext.current
+        val state by cameraViewModel.cameraState.collectAsState()
+
         val launcher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
-            hasCameraPermission = isGranted
+            cameraViewModel.checkCameraPermission(context)
         }
         LaunchedEffect(key1 = Unit) {
-            hasCameraPermission = ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED
+            cameraViewModel.checkCameraPermission(context)
         }
-        if (hasCameraPermission) {
-            CameraPreviewScreen()
+        if (state.hasCameraPermission) {
+           CameraPreviewScreen(cameraViewModel)
         } else {
-            CameraPermissionNeeded(launcher)
+            CameraPermissionNeeded(launcher,cameraViewModel)
         }
     }
 
@@ -70,7 +72,7 @@ fun CameraScreen() {
 }
 
 @Composable
-fun CameraPermissionNeeded(launcher: ManagedActivityResultLauncher<String, Boolean>) {
+fun CameraPermissionNeeded(launcher:ManagedActivityResultLauncher<String, Boolean>,cameraViewModel:CameraViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -83,29 +85,17 @@ fun CameraPermissionNeeded(launcher: ManagedActivityResultLauncher<String, Boole
         Spacer(modifier = Modifier.height(16.dp))
         Text("The application needs access to your camera, which is required to contribute and share the potholes you see!")
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { launcher.launch(Manifest.permission.CAMERA) }) {
+        Button(onClick = { cameraViewModel.requestCameraPermission(launcher) }) {
             Text(text = "Request Camera Permission")
         }
     }
 
 }
 
-@Composable
-fun CameraComponent() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
 
-        ) {
-        Text("Camera Permission Given", fontWeight = FontWeight.Bold)
-    }
-}
 
 @Composable
-fun CameraPreviewScreen() {
+fun CameraPreviewScreen(cameraViewModel: CameraViewModel) {
     val lensFacing = CameraSelector.LENS_FACING_BACK
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
@@ -118,7 +108,7 @@ fun CameraPreviewScreen() {
         ImageCapture.Builder().build()
     }
     LaunchedEffect(lensFacing) {
-        val cameraProvider = context.getCameraProvider()
+        val cameraProvider = cameraViewModel.getCameraProvider(context)
         cameraProvider.unbindAll()
         cameraProvider.bindToLifecycle(lifecycleOwner, cameraxSelector, preview, imageCapture)
         preview.setSurfaceProvider(previewView.surfaceProvider)
@@ -131,7 +121,7 @@ fun CameraPreviewScreen() {
     ) {
         AndroidView({ previewView }, modifier = Modifier.fillMaxSize())
         Button(
-            onClick = { captureImage(imageCapture,context) },
+            onClick = { cameraViewModel.captureImage(imageCapture,context) },
             modifier = Modifier.padding(bottom = 30.dp)
         ) {
             Text(text = "Capture Image")
@@ -141,42 +131,3 @@ fun CameraPreviewScreen() {
 
 
 
-private fun captureImage(imageCapture: ImageCapture, context: Context) {
-    val name = "CameraxImage.jpeg"
-    val contentValues = ContentValues().apply {
-        put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-        put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image")
-        }
-    }
-    val outputOptions = ImageCapture.OutputFileOptions
-        .Builder(
-            context.contentResolver,
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            contentValues
-        )
-        .build()
-    imageCapture.takePicture(
-        outputOptions,
-        ContextCompat.getMainExecutor(context),
-        object : ImageCapture.OnImageSavedCallback {
-            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                Log.d("Success", "Success")
-            }
-
-            override fun onError(exception: ImageCaptureException) {
-                Log.d("Failed", "$exception")
-            }
-
-        })
-}
-
-private suspend fun Context.getCameraProvider(): ProcessCameraProvider =
-    suspendCoroutine { continuation ->
-        ProcessCameraProvider.getInstance(this).also { cameraProvider ->
-            cameraProvider.addListener({
-                continuation.resume(cameraProvider.get())
-            }, ContextCompat.getMainExecutor(this))
-        }
-    }

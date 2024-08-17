@@ -4,9 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.lubak.screen.CameraScreen
-import com.example.lubak.screen.HomeScreen
-import com.example.lubak.screen.Screen
+import com.example.lubak.view.CameraScreen
+import com.example.lubak.view.HomeScreen
+import com.example.lubak.view.Screen
 
 @Composable
 fun Navigation() {
