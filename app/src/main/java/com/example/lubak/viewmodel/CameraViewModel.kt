@@ -34,7 +34,7 @@ class CameraViewModel: ViewModel() {
             context,
             Manifest.permission.CAMERA
         ) == PackageManager.PERMISSION_GRANTED
-        _cameraState.value = _cameraState.value.copy(hasCameraPermission = hasPermission)
+        _cameraState.value = CameraState(hasCameraPermission = hasPermission)
     }
 
     fun requestCameraPermission(launcher: ManagedActivityResultLauncher<String, Boolean>) {
