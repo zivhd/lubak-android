@@ -63,13 +63,18 @@ fun PredictScreen(cameraViewModel: CameraViewModel) {
         , verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (predictionResponse != null) {
-            Text("Pothole Detected")
+            if (predictionResponse!!.predictions.isNotEmpty()) {
+                Text("Pothole detected with ${predictionResponse!!.predictions[0].confidence} confidence level")
+            } else {
+                Text("No potholes detected")
+            }
         } else if (errorMessage != null) {
             Text("Error: $errorMessage")
-            Log.e("Error","$errorMessage")
+            Log.e("Error", errorMessage!!)
         } else {
             Text("Sending image for prediction...")
         }
+
     }
 }
 
