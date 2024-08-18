@@ -38,6 +38,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -45,10 +46,11 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.lubak.viewmodel.CameraViewModel
 
 @Composable
-fun CameraScreen(cameraViewModel: CameraViewModel = viewModel()) {
+fun CameraScreen(cameraViewModel: CameraViewModel,navController: NavController) {
     LubakTheme {
         val context = LocalContext.current
         val state by cameraViewModel.cameraState.collectAsState()
@@ -62,7 +64,7 @@ fun CameraScreen(cameraViewModel: CameraViewModel = viewModel()) {
             cameraViewModel.checkCameraPermission(context)
         }
         if (state.hasCameraPermission) {
-           CameraPreviewScreen(cameraViewModel)
+           CameraPreviewScreen(cameraViewModel,navController)
         } else {
             CameraPermissionNeeded(launcher,cameraViewModel)
         }
@@ -95,11 +97,12 @@ fun CameraPermissionNeeded(launcher:ManagedActivityResultLauncher<String, Boolea
 
 
 @Composable
-fun CameraPreviewScreen(cameraViewModel: CameraViewModel) {
+fun CameraPreviewScreen(cameraViewModel: CameraViewModel,navController: NavController) {
     val lensFacing = CameraSelector.LENS_FACING_BACK
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val preview = Preview.Builder().build()
+    val coroutineScope = rememberCoroutineScope()
     val previewView = remember {
         PreviewView(context)
     }
@@ -121,7 +124,15 @@ fun CameraPreviewScreen(cameraViewModel: CameraViewModel) {
     ) {
         AndroidView({ previewView }, modifier = Modifier.fillMaxSize())
         Button(
-            onClick = { cameraViewModel.captureImage(imageCapture,context) },
+            onClick = {
+                cameraViewModel.captureImage(imageCapture,context,scope = coroutineScope){
+                    navController.navigate(Screen.PredictScreen.route)
+                }
+
+
+
+
+             },
             modifier = Modifier.padding(bottom = 30.dp)
         ) {
             Text(text = "Capture Image")
