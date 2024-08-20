@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation("com.mapbox.maps:android:11.5.1")
     implementation("com.mapbox.extension:maps-compose:11.5.1")
+    implementation("io.coil-kt:coil:2.7.0")
     implementation(libs.androidx.ui.text.google.fonts)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -71,6 +72,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("androidx.navigation:navigation-compose:2.7.1")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("id.zelory:compressor:3.0.1")
 // Retrofit with Scalar Converter
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")

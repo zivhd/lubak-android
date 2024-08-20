@@ -5,6 +5,7 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
@@ -19,6 +20,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lubak.state.CameraState
+import id.zelory.compressor.Compressor
+import id.zelory.compressor.constraint.format
+import id.zelory.compressor.constraint.quality
+import id.zelory.compressor.constraint.resolution
+import id.zelory.compressor.constraint.size
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +32,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InputStream
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -77,10 +86,17 @@ class CameraViewModel: ViewModel() {
 
                     scope.launch {
                         try {
-                            val byteArray = uriToByteArray(context, uri)
+
+                            val file = createFileFromUri(context,uri)
+                            val compressedImageFile = Compressor.compress(context, file!!) {
+                                resolution(1280, 720)
+                                quality(80)
+                                size(2_097_152) // 2 MB
+                            }
+                            val byteArray = compressedImageFile.readBytes()
                             // Delete the image file after conversion
                             deleteFile(context.contentResolver, uri)
-                            Log.d("Success", "Sucess to read image or delete image")
+                            Log.d("Success", "Success  to read image or delete image")
                             sharedByteArray = byteArray
                             onCaptureComplete()
                         } catch (e: IOException) {
@@ -124,6 +140,31 @@ class CameraViewModel: ViewModel() {
             cameraProvider.addListener({
                 continuation.resume(cameraProvider.get())
             }, ContextCompat.getMainExecutor(context))
+        }
+    }
+
+    fun createFileFromUri(context: Context, uri: Uri): File? {
+        return try {
+            // Get the input stream from the URI
+            val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
+            if (inputStream != null) {
+                // Create a temporary file
+                val tempFile = File.createTempFile("image_", ".jpg", context.cacheDir)
+                // Write the input stream to the file
+                FileOutputStream(tempFile).use { outputStream ->
+                    val buffer = ByteArray(1024)
+                    var length: Int
+                    while (inputStream.read(buffer).also { length = it } > 0) {
+                        outputStream.write(buffer, 0, length)
+                    }
+                }
+                tempFile
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 
