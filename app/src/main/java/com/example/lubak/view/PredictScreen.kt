@@ -30,6 +30,7 @@ fun PredictScreen(cameraViewModel: CameraViewModel) {
     var uploadResponse by remember { mutableStateOf<UploadResponse?>(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
+
     if (byteArray != null) {
         val requestBody = byteArray.toRequestBody("image/jpeg".toMediaTypeOrNull())
         val imagePart = MultipartBody.Part.createFormData("file", "image.jpg", requestBody)
@@ -72,7 +73,7 @@ fun PredictScreen(cameraViewModel: CameraViewModel) {
                 Text("No potholes detected")
             }
         }
-        Text("Location at $location.")
+        Text("Location at latitude: ${location!!.latitude} and longitude ${location.longitude} ")
 
         errorMessage?.let {
             Text("Error: $it")
