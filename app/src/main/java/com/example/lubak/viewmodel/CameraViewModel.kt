@@ -1,11 +1,13 @@
 package com.example.lubak.viewmodel
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.location.Location
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
@@ -15,11 +17,16 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lubak.state.CameraState
+import com.example.lubak.state.LocationState
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.mapbox.maps.extension.style.expressions.dsl.generated.has
 import id.zelory.compressor.Compressor
 import id.zelory.compressor.constraint.format
 import id.zelory.compressor.constraint.quality
@@ -39,12 +46,28 @@ import java.io.InputStream
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class CameraViewModel: ViewModel() {
+class CameraViewModel(fusedLocationClient:FusedLocationProviderClient): ViewModel() {
 
 
     private val _cameraState = MutableStateFlow(CameraState())
     val cameraState: StateFlow<CameraState> = _cameraState.asStateFlow()
     var sharedByteArray: ByteArray? = null
+    var sharedLocation: Location? = null
+    private val _locationState = MutableStateFlow(LocationState())
+    val locationState: StateFlow<LocationState> = _locationState.asStateFlow()
+    val fusedLocationClient = fusedLocationClient
+
+    fun checkLocationPermission(context:Context){
+        val hasPermission = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        _locationState.value = LocationState(hasLocationPermission = hasPermission)
+    }
+
+    fun requestLocationPermission(launcher: ManagedActivityResultLauncher<String, Boolean>) {
+        launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+    }
 
     fun checkCameraPermission(context: Context) {
         val hasPermission = ContextCompat.checkSelfPermission(
@@ -80,12 +103,17 @@ class CameraViewModel: ViewModel() {
             outputOptions,
             ContextCompat.getMainExecutor(context),
             object : ImageCapture.OnImageSavedCallback {
+                @SuppressLint("MissingPermission")
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                     val uri = outputFileResults.savedUri ?: return
                     Log.d("Success", "Image saved to: $uri")
 
                     scope.launch {
                         try {
+                            fusedLocationClient.lastLocation
+                                .addOnSuccessListener { location : Location? ->
+                                    sharedLocation = location
+                                }
 
                             val file = createFileFromUri(context,uri)
                             val compressedImageFile = Compressor.compress(context, file!!) {
@@ -167,6 +195,8 @@ class CameraViewModel: ViewModel() {
             null
         }
     }
+
+
 
 
 

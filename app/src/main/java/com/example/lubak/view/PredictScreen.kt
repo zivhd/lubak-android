@@ -24,6 +24,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 @Composable
 fun PredictScreen(cameraViewModel: CameraViewModel) {
     val byteArray = cameraViewModel.sharedByteArray
+    val location = cameraViewModel.sharedLocation
     val apiService = RetrofitClient.instance
     var predictionResponse by remember { mutableStateOf<PredictionResponse?>(null) }
     var uploadResponse by remember { mutableStateOf<UploadResponse?>(null) }
@@ -71,6 +72,7 @@ fun PredictScreen(cameraViewModel: CameraViewModel) {
                 Text("No potholes detected")
             }
         }
+        Text("Location at $location.")
 
         errorMessage?.let {
             Text("Error: $it")

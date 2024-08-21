@@ -10,11 +10,12 @@ import com.example.lubak.view.HomeScreen
 import com.example.lubak.view.PredictScreen
 import com.example.lubak.view.Screen
 import com.example.lubak.viewmodel.CameraViewModel
+import com.google.android.gms.location.FusedLocationProviderClient
 
 @Composable
-fun Navigation() {
+fun Navigation(fusedLocationClient:FusedLocationProviderClient) {
     val navController = rememberNavController()
-    val cameraViewModel: CameraViewModel = viewModel()
+    val cameraViewModel = CameraViewModel(fusedLocationClient)
 
     NavHost(navController = navController, startDestination = Screen.HomeScreen.route ){
         composable(route = Screen.HomeScreen.route){

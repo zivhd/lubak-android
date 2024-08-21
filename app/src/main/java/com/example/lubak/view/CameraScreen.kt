@@ -53,28 +53,38 @@ import com.example.lubak.viewmodel.CameraViewModel
 fun CameraScreen(cameraViewModel: CameraViewModel,navController: NavController) {
     LubakTheme {
         val context = LocalContext.current
-        val state by cameraViewModel.cameraState.collectAsState()
+        val cameraState by cameraViewModel.cameraState.collectAsState()
+        val locationState by cameraViewModel.locationState.collectAsState()
 
         val launcher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
             cameraViewModel.checkCameraPermission(context)
+            cameraViewModel.checkLocationPermission(context)
         }
         LaunchedEffect(key1 = Unit) {
             cameraViewModel.checkCameraPermission(context)
+            cameraViewModel.checkLocationPermission(context)
         }
-        if (state.hasCameraPermission) {
-           CameraPreviewScreen(cameraViewModel,navController)
-        } else {
-            CameraPermissionNeeded(launcher,cameraViewModel)
+        when {
+            !cameraState.hasCameraPermission -> {
+                CameraPermissionNeeded(launcher, cameraViewModel)
+            }
+            !locationState.hasLocationPermission -> {
+                LocationPermissionNeeded(launcher, cameraViewModel)
+            }
+            cameraState.hasCameraPermission && locationState.hasLocationPermission -> {
+                CameraPreviewScreen(cameraViewModel, navController)
+            }
         }
+
     }
 
 
 }
 
 @Composable
-fun CameraPermissionNeeded(launcher:ManagedActivityResultLauncher<String, Boolean>,cameraViewModel:CameraViewModel) {
+fun CameraPermissionNeeded(launcher:ManagedActivityResultLauncher<String, Boolean>, cameraViewModel:CameraViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -89,6 +99,29 @@ fun CameraPermissionNeeded(launcher:ManagedActivityResultLauncher<String, Boolea
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = { cameraViewModel.requestCameraPermission(launcher) }) {
             Text(text = "Request Camera Permission")
+        }
+    }
+
+}
+
+
+
+@Composable
+fun LocationPermissionNeeded(launcher:ManagedActivityResultLauncher<String, Boolean>, cameraViewModel:CameraViewModel) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(32.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+
+        ) {
+        Text("Location Permission Needed", fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("The application needs access to your location, which is required to contribute and share the potholes you see!")
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = { cameraViewModel.requestLocationPermission(launcher) }) {
+            Text(text = "Request Location Permission")
         }
     }
 
