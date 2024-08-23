@@ -64,112 +64,79 @@ fun RegisterScreen(navController: NavController) {
             OutlinedTextField(
                 value = registerViewModel.email,
                 onValueChange = { registerViewModel.onEmailChange(it) },
-                label = { Text("Email") },
+                label = { (if (registerViewModel.emailError == null) "Email" else registerViewModel.emailError)?.let {
+                    Text(
+                        it
+                    )
+                } },
                 placeholder = { Text("Email") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp),
                 isError = registerViewModel.emailError != null
             )
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
-                ) {
-                    Text(
-                        text = registerViewModel.emailError ?: "",
-                        color = Color.Red,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Thin,
-                        modifier = Modifier
-                            .align(Alignment.BottomStart) // Adjust this to align text as needed
-                    )
-                }
+
 
 
             OutlinedTextField(
                 value = registerViewModel.username,
                 onValueChange = { registerViewModel.onUsernameChange(it) },
-                label = { Text("Username") },
-                placeholder = { Text("Username") },
+                label = { (if (registerViewModel.usernameError == null) "Username" else registerViewModel.usernameError)?.let {
+                    Text(
+                        it
+                    )
+                } },
+                placeholder = {Text("Username")} ,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp),
                 isError = registerViewModel.usernameError != null
             )
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
-                ) {
-                    Text(
-                        text = registerViewModel.usernameError ?: "",
-                        color = Color.Red,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Thin,
-                        modifier = Modifier
-                            .align(Alignment.BottomStart) // Adjust this to align text as needed
-                    )
-                }
+
 
 
 
             OutlinedTextField(
                 value = registerViewModel.firstName,
                 onValueChange = { registerViewModel.onFirstNameChange(it) },
-                label = { Text("First Name") },
+                label = { (if (registerViewModel.firstNameError == null) "First Name" else registerViewModel.firstNameError)?.let {
+                    Text(
+                        it
+                    )
+                } },
                 placeholder = { Text("First Name") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp),
                 isError = registerViewModel.firstNameError != null
             )
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
-                ) {
-                    Text(
-                        text = registerViewModel.firstNameError ?: "",
-                        color = Color.Red,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Thin,
-                        modifier = Modifier
-                            .align(Alignment.BottomStart) // Adjust this to align text as needed
-                    )
-                }
 
 
             OutlinedTextField(
                 value = registerViewModel.lastName,
                 onValueChange = { registerViewModel.onLastNameChange(it) },
-                label = { Text("Last Name") },
+                label = { (if (registerViewModel.lastNameError == null) "Last Name" else registerViewModel.lastNameError)?.let {
+                    Text(
+                        it
+                    )
+                } },
                 placeholder = { Text("Last Name") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp),
                 isError = registerViewModel.lastNameError != null
             )
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
-                ) {
-                    Text(
-                        text = registerViewModel.lastNameError ?: "",
-                        color = Color.Red,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Thin,
-                        modifier = Modifier
-                            .align(Alignment.BottomStart) // Adjust this to align text as needed
-                    )
-                }
+
 
 
             OutlinedTextField(
                 value = registerViewModel.password,
                 onValueChange = { registerViewModel.onPasswordChange(it) },
-                label = { Text("Password") },
+                label = { (if (registerViewModel.passwordError == null) "Password" else registerViewModel.passwordError)?.let {
+                    Text(
+                        it
+                    )
+                } },
                 placeholder = { Text("Password") },
                 visualTransformation = if (registerViewModel.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
@@ -189,25 +156,16 @@ fun RegisterScreen(navController: NavController) {
                 isError = registerViewModel.passwordError != null
 
             )
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
-                ) {
-                    Text(
-                        text = registerViewModel.passwordError ?: "",
-                        color = Color.Red,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Thin,
-                        modifier = Modifier
-                            .align(Alignment.BottomStart) // Adjust this to align text as needed
-                    )
-                }
+
 
             OutlinedTextField(
                 value = registerViewModel.confirmPassword,
                 onValueChange = { registerViewModel.onConfirmPasswordChange(it) },
-                label = { Text("Confirm Password") },
+                label = { (if (registerViewModel.confirmPasswordError == null) "Confirm Password" else registerViewModel.confirmPasswordError)?.let {
+                    Text(
+                        it
+                    )
+                } },
                 placeholder = { Text("Confirm Password") },
                 visualTransformation = if (registerViewModel.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
@@ -226,20 +184,6 @@ fun RegisterScreen(navController: NavController) {
                     .padding(horizontal = 20.dp),
                 isError = registerViewModel.confirmPasswordError != null
             )
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
-                ) {
-                    Text(
-                        text = registerViewModel.confirmPasswordError ?: "",
-                        color = Color.Red,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Thin,
-                        modifier = Modifier
-                            .align(Alignment.BottomStart) // Adjust this to align text as needed
-                    )
-                }
 
             Spacer(modifier = Modifier.height(16.dp))
             ArsenalButton(
