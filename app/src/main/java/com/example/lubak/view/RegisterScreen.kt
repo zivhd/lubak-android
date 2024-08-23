@@ -244,22 +244,23 @@ fun RegisterScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(16.dp))
             ArsenalButton(
                 onClick = {
+
                     if(registerViewModel.validateFields()) {
                         registerViewModel.register() { result ->
                             if (result.success) {
                                 Toast.makeText(
                                     context,
                                     result.message,
-                                    Toast.LENGTH_LONG
+                                    Toast.LENGTH_SHORT
                                 ).show()
                                 navController.navigate("login_screen") {
-                                    popUpTo("register_screen") { inclusive = true }
+                                    navController.popBackStack()
                                 }
                             } else {
                                 Toast.makeText(
                                     context,
                                     result.message,
-                                    Toast.LENGTH_LONG
+                                    Toast.LENGTH_SHORT
                                 ).show()
 
 
@@ -270,7 +271,7 @@ fun RegisterScreen(navController: NavController) {
                         Toast.makeText(
                             context,
                             "Please fix the errors above",
-                            Toast.LENGTH_LONG
+                            Toast.LENGTH_SHORT
                         ).show()
                           }},
                 Modifier
