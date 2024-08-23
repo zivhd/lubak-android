@@ -1,5 +1,8 @@
 package com.example.lubak.view
 
+import android.os.Build
+import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -10,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -21,11 +25,17 @@ import com.example.lubak.R
 import com.example.lubak.composables.ArsenalButton
 import com.example.lubak.viewmodel.RegisterViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun RegisterScreen() {
+fun RegisterScreen(navController: NavController) {
     val registerViewModel: RegisterViewModel = viewModel()
     val isLoading = registerViewModel.isLoading
+    val registrationResult by remember { mutableStateOf(registerViewModel.registrationResult) }
+    val context = LocalContext.current
+
+
 
     LubakTheme {
         Column(
@@ -59,9 +69,24 @@ fun RegisterScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp),
+                isError = registerViewModel.emailError != null
             )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                ) {
+                    Text(
+                        text = registerViewModel.emailError ?: "",
+                        color = Color.Red,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Thin,
+                        modifier = Modifier
+                            .align(Alignment.BottomStart) // Adjust this to align text as needed
+                    )
+                }
 
-            Spacer(modifier = Modifier.height(4.dp))
+
             OutlinedTextField(
                 value = registerViewModel.username,
                 onValueChange = { registerViewModel.onUsernameChange(it) },
@@ -70,9 +95,24 @@ fun RegisterScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp),
+                isError = registerViewModel.usernameError != null
             )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                ) {
+                    Text(
+                        text = registerViewModel.usernameError ?: "",
+                        color = Color.Red,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Thin,
+                        modifier = Modifier
+                            .align(Alignment.BottomStart) // Adjust this to align text as needed
+                    )
+                }
 
-            Spacer(modifier = Modifier.height(4.dp))
+
 
             OutlinedTextField(
                 value = registerViewModel.firstName,
@@ -82,9 +122,24 @@ fun RegisterScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp),
+                isError = registerViewModel.firstNameError != null
             )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                ) {
+                    Text(
+                        text = registerViewModel.firstNameError ?: "",
+                        color = Color.Red,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Thin,
+                        modifier = Modifier
+                            .align(Alignment.BottomStart) // Adjust this to align text as needed
+                    )
+                }
 
-            Spacer(modifier = Modifier.height(4.dp))
+
             OutlinedTextField(
                 value = registerViewModel.lastName,
                 onValueChange = { registerViewModel.onLastNameChange(it) },
@@ -93,9 +148,24 @@ fun RegisterScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp),
+                isError = registerViewModel.lastNameError != null
             )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                ) {
+                    Text(
+                        text = registerViewModel.lastNameError ?: "",
+                        color = Color.Red,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Thin,
+                        modifier = Modifier
+                            .align(Alignment.BottomStart) // Adjust this to align text as needed
+                    )
+                }
 
-            Spacer(modifier = Modifier.height(4.dp))
+
             OutlinedTextField(
                 value = registerViewModel.password,
                 onValueChange = { registerViewModel.onPasswordChange(it) },
@@ -115,10 +185,25 @@ fun RegisterScreen() {
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
-            )
+                    .padding(horizontal = 20.dp),
+                isError = registerViewModel.passwordError != null
 
-            Spacer(modifier = Modifier.height(4.dp))
+            )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                ) {
+                    Text(
+                        text = registerViewModel.passwordError ?: "",
+                        color = Color.Red,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Thin,
+                        modifier = Modifier
+                            .align(Alignment.BottomStart) // Adjust this to align text as needed
+                    )
+                }
+
             OutlinedTextField(
                 value = registerViewModel.confirmPassword,
                 onValueChange = { registerViewModel.onConfirmPasswordChange(it) },
@@ -138,12 +223,56 @@ fun RegisterScreen() {
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
+                    .padding(horizontal = 20.dp),
+                isError = registerViewModel.confirmPasswordError != null
             )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                ) {
+                    Text(
+                        text = registerViewModel.confirmPasswordError ?: "",
+                        color = Color.Red,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Thin,
+                        modifier = Modifier
+                            .align(Alignment.BottomStart) // Adjust this to align text as needed
+                    )
+                }
 
             Spacer(modifier = Modifier.height(16.dp))
             ArsenalButton(
-                onClick = { registerViewModel.register() },
+                onClick = {
+                    if(registerViewModel.validateFields()) {
+                        registerViewModel.register() { result ->
+                            if (result.success) {
+                                Toast.makeText(
+                                    context,
+                                    result.message,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                navController.navigate("login_screen") {
+                                    popUpTo("register_screen") { inclusive = true }
+                                }
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    result.message,
+                                    Toast.LENGTH_LONG
+                                ).show()
+
+
+                            }
+                        }
+                    }
+                          else{
+                        Toast.makeText(
+                            context,
+                            "Please fix the errors above",
+                            Toast.LENGTH_LONG
+                        ).show()
+                          }},
                 Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp),

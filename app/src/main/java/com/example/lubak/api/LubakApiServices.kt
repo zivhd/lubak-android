@@ -27,5 +27,5 @@ interface LubakApiServices {
     ): Response<UploadResponse>
 
     @POST("register")
-    fun registerUser(@Body user: User): Call<String>
+    fun registerUser(@Body user: User): Call<RegisterResponse>
 }

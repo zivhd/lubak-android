@@ -37,7 +37,7 @@ fun Navigation(fusedLocationClient:FusedLocationProviderClient) {
             LoginOrRegisterScreen(navController = navController)
         }
         composable(route = Screen.RegisterScreen.route){
-            RegisterScreen()
+            RegisterScreen(navController = navController)
         }
     }
 }
