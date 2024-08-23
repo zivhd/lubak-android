@@ -7,7 +7,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.lubak.view.CameraScreen
 import com.example.lubak.view.HomeScreen
+import com.example.lubak.view.LoginOrRegisterScreen
+import com.example.lubak.view.LoginScreen
 import com.example.lubak.view.PredictScreen
+import com.example.lubak.view.RegisterScreen
 import com.example.lubak.view.Screen
 import com.example.lubak.viewmodel.CameraViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -17,7 +20,7 @@ fun Navigation(fusedLocationClient:FusedLocationProviderClient) {
     val navController = rememberNavController()
     val cameraViewModel = CameraViewModel(fusedLocationClient)
 
-    NavHost(navController = navController, startDestination = Screen.HomeScreen.route ){
+    NavHost(navController = navController, startDestination = Screen.LoginOrRegisterScreen.route ){
         composable(route = Screen.HomeScreen.route){
             HomeScreen(navController = navController)
         }
@@ -26,6 +29,15 @@ fun Navigation(fusedLocationClient:FusedLocationProviderClient) {
         }
         composable(route = Screen.PredictScreen.route){
             PredictScreen(cameraViewModel=cameraViewModel)
+        }
+        composable(route = Screen.LoginScreen.route){
+            LoginScreen()
+        }
+        composable(route = Screen.LoginOrRegisterScreen.route){
+            LoginOrRegisterScreen(navController = navController)
+        }
+        composable(route = Screen.RegisterScreen.route){
+            RegisterScreen()
         }
     }
 }
