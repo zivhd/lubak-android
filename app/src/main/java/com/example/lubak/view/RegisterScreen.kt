@@ -1,29 +1,12 @@
 package com.example.lubak.view
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,16 +19,13 @@ import androidx.compose.ui.unit.sp
 import com.example.compose.LubakTheme
 import com.example.lubak.R
 import com.example.lubak.composables.ArsenalButton
+import com.example.lubak.viewmodel.RegisterViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun RegisterScreen() {
-    var email by rememberSaveable { mutableStateOf("") }
-    var username by rememberSaveable { mutableStateOf("") }
-    var firstName by rememberSaveable { mutableStateOf("") }
-    var lastName by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-    var passwordVisible by rememberSaveable { mutableStateOf(false) }
-    var confirmPassword by rememberSaveable { mutableStateOf("") }
+    val registerViewModel: RegisterViewModel = viewModel()
+    val isLoading = registerViewModel.isLoading
 
     LubakTheme {
         Column(
@@ -53,6 +33,10 @@ fun RegisterScreen() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            if(isLoading){
+                CircularProgressIndicator()
+            }
+            else{
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -68,8 +52,8 @@ fun RegisterScreen() {
             Text(text = "Register to continue")
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
+                value = registerViewModel.email,
+                onValueChange = { registerViewModel.onEmailChange(it) },
                 label = { Text("Email") },
                 placeholder = { Text("Email") },
                 modifier = Modifier
@@ -79,8 +63,8 @@ fun RegisterScreen() {
 
             Spacer(modifier = Modifier.height(4.dp))
             OutlinedTextField(
-                value = username,
-                onValueChange = { username = it },
+                value = registerViewModel.username,
+                onValueChange = { registerViewModel.onUsernameChange(it) },
                 label = { Text("Username") },
                 placeholder = { Text("Username") },
                 modifier = Modifier
@@ -91,8 +75,8 @@ fun RegisterScreen() {
             Spacer(modifier = Modifier.height(4.dp))
 
             OutlinedTextField(
-                value = firstName,
-                onValueChange = { firstName = it },
+                value = registerViewModel.firstName,
+                onValueChange = { registerViewModel.onFirstNameChange(it) },
                 label = { Text("First Name") },
                 placeholder = { Text("First Name") },
                 modifier = Modifier
@@ -102,8 +86,8 @@ fun RegisterScreen() {
 
             Spacer(modifier = Modifier.height(4.dp))
             OutlinedTextField(
-                value = lastName,
-                onValueChange = { lastName = it },
+                value = registerViewModel.lastName,
+                onValueChange = { registerViewModel.onLastNameChange(it) },
                 label = { Text("Last Name") },
                 placeholder = { Text("Last Name") },
                 modifier = Modifier
@@ -113,60 +97,53 @@ fun RegisterScreen() {
 
             Spacer(modifier = Modifier.height(4.dp))
             OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
+                value = registerViewModel.password,
+                onValueChange = { registerViewModel.onPasswordChange(it) },
                 label = { Text("Password") },
                 placeholder = { Text("Password") },
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                visualTransformation = if (registerViewModel.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
-                    val image = if (passwordVisible)
+                    val image = if (registerViewModel.passwordVisible)
                         Icons.Default.Visibility
                     else Icons.Filled.VisibilityOff
 
-                    val description = if (passwordVisible) "Hide password" else "Show password"
+                    val description = if (registerViewModel.passwordVisible) "Hide password" else "Show password"
 
-                    IconButton(onClick = {passwordVisible = !passwordVisible}){
-                        Icon(imageVector  = image, description)
+                    IconButton(onClick = { registerViewModel.onPasswordVisibilityToggle() }) {
+                        Icon(imageVector = image, description)
                     }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
-
-
-
             )
 
             Spacer(modifier = Modifier.height(4.dp))
             OutlinedTextField(
-                value = confirmPassword,
-                onValueChange = { confirmPassword = it },
+                value = registerViewModel.confirmPassword,
+                onValueChange = { registerViewModel.onConfirmPasswordChange(it) },
                 label = { Text("Confirm Password") },
                 placeholder = { Text("Confirm Password") },
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                visualTransformation = if (registerViewModel.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
-                    val image = if (passwordVisible)
+                    val image = if (registerViewModel.passwordVisible)
                         Icons.Default.Visibility
                     else Icons.Filled.VisibilityOff
 
-                    val description = if (passwordVisible) "Hide password" else "Show password"
+                    val description = if (registerViewModel.passwordVisible) "Hide password" else "Show password"
 
-                    IconButton(onClick = {passwordVisible = !passwordVisible}){
-                        Icon(imageVector  = image, description)
+                    IconButton(onClick = { registerViewModel.onPasswordVisibilityToggle() }) {
+                        Icon(imageVector = image, description)
                     }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
-
-
-
             )
-
 
             Spacer(modifier = Modifier.height(16.dp))
             ArsenalButton(
-                onClick = {},
+                onClick = { registerViewModel.register() },
                 Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp),
@@ -187,8 +164,6 @@ fun RegisterScreen() {
                 )
             }
 
-        }
+        }}
     }
-
-
 }

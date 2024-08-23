@@ -17,7 +17,5 @@ class Pothole(
         isActive = true
     }
 
-    override fun toString(): String {
-        return "Pothole(id=$id, coordinates=$coordinates, streetName='$streetName', cityName='$cityName', user=${user.username}, isActive=$isActive, , predictionConfidence=$predictionConfidence)"
-    }
+
 }

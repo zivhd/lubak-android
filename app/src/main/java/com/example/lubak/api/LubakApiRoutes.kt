@@ -5,4 +5,5 @@ object LubakApiRoutes {
     const val predict = "predict"
     const val upload = "upload"
     const val delete = "delete"
+    const val register = "register"
 }
