@@ -20,19 +20,19 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.compose.LubakTheme
+
 import com.example.lubak.R
 import com.example.lubak.composables.ArsenalButton
 import com.example.lubak.viewmodel.RegisterViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.lubak.ui.theme.LubakTheme
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RegisterScreen(navController: NavController) {
     val registerViewModel: RegisterViewModel = viewModel()
     val isLoading = registerViewModel.isLoading
-    val registrationResult by remember { mutableStateOf(registerViewModel.registrationResult) }
     val context = LocalContext.current
 
 

@@ -1,5 +1,7 @@
 package com.example.lubak.api
 
+import com.example.lubak.model.LoginModel
+import com.example.lubak.model.LoginResponse
 import com.example.lubak.model.PredictionResponse
 import com.example.lubak.model.RegisterResponse
 import com.example.lubak.model.UploadResponse
@@ -28,4 +30,7 @@ interface LubakApiServices {
 
     @POST("register")
     fun registerUser(@Body user: User): Call<RegisterResponse>
+
+    @POST("login")
+    fun loginUser(@Body loginModel: LoginModel): Call<LoginResponse>
 }

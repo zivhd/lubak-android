@@ -18,10 +18,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.compose.LubakTheme
+
 import com.example.lubak.R
 import com.example.lubak.composables.ArsenalButton
 import com.example.lubak.composables.ArsenalOutlinedButton
+import com.example.lubak.ui.theme.LubakTheme
 
 @Composable
 fun LoginOrRegisterScreen(navController: NavController) {

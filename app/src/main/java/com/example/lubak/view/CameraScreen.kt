@@ -22,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.compose.LubakTheme
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import android.content.ContentValues
@@ -47,6 +46,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.lubak.ui.theme.LubakTheme
 import com.example.lubak.viewmodel.CameraViewModel
 
 @Composable
