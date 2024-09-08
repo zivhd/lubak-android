@@ -37,7 +37,7 @@ fun RegisterScreen(navController: NavController) {
 
 
 
-    LubakTheme {
+
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
@@ -239,5 +239,5 @@ fun RegisterScreen(navController: NavController) {
             }
 
         }}
-    }
+
 }

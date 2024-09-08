@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.compose.material3.ExperimentalMaterial3Api
+import com.example.lubak.ui.theme.LubakTheme
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 
@@ -20,7 +21,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            Navigation(fusedLocationClient)
+            LubakTheme {
+                Navigation(fusedLocationClient)
+            }
+
         }
     }
 

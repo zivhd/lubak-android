@@ -51,7 +51,7 @@ import com.example.lubak.viewmodel.CameraViewModel
 
 @Composable
 fun CameraScreen(cameraViewModel: CameraViewModel,navController: NavController) {
-    LubakTheme {
+
         val context = LocalContext.current
         val cameraState by cameraViewModel.cameraState.collectAsState()
         val locationState by cameraViewModel.locationState.collectAsState()
@@ -78,7 +78,7 @@ fun CameraScreen(cameraViewModel: CameraViewModel,navController: NavController) 
             }
         }
 
-    }
+
 
 
 }

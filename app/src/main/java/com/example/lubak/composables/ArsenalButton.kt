@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -18,7 +20,14 @@ fun ArsenalButton(onClick :  () -> Unit, modifier: Modifier, text: String, fontS
     Button(
         onClick = onClick,
         modifier = modifier,
-        shape = RoundedCornerShape(10)
+        shape = RoundedCornerShape(10),
+        colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+             contentColor = MaterialTheme.colorScheme.onPrimary,
+
+    )
+
+
     ) {
         Text(text = text, fontSize = fontSize )
     }

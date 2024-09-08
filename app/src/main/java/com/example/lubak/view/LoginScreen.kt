@@ -44,7 +44,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
     val isPasswordVisible = loginViewModel.isPasswordVisible.value
     val loginResult = loginViewModel.loginResult.value
 
-    LubakTheme {
+
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
@@ -72,6 +72,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
                 placeholder = { Text("Email Address") },
                 modifier = Modifier
                     .fillMaxWidth()
+
                     .padding(horizontal = 20.dp),
             )
             Spacer(modifier = Modifier.height(4.dp))
@@ -143,5 +144,5 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
                 )
             }
         }
-    }
+
 }

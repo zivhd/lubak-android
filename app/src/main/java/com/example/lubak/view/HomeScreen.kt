@@ -41,7 +41,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(navController: NavController){
     val context = LocalContext.current
-    LubakTheme {
+
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         val scope = rememberCoroutineScope()
         ModalNavigationDrawer(
@@ -91,7 +91,7 @@ fun HomeScreen(navController: NavController){
 
             }
         }
-    }
+
 }
 
 @OptIn(MapboxExperimental::class)
