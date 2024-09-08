@@ -256,17 +256,16 @@ val unspecified_scheme = ColorFamily(
 
 @Composable
 fun LubakTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
-    content: @Composable() () -> Unit
+    darkTheme: Boolean = isSystemInDarkTheme(), // Use system theme by default
+    useDynamicColor: Boolean = true, // Whether to use dynamic color (Android 12+)
+    content: @Composable () -> Unit
 ) {
+    // Choose color scheme based on parameters
     val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+        useDynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
         darkTheme -> darkScheme
         else -> lightScheme
     }
@@ -277,4 +276,5 @@ fun LubakTheme(
         content = content
     )
 }
+
 

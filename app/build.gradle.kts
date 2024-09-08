@@ -60,8 +60,9 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation("com.mapbox.maps:android:11.5.1")
-    implementation("com.mapbox.extension:maps-compose:11.5.1")
+    implementation("com.mapbox.maps:android:11.6.0")
+    // If you're using compose also add the compose extension
+    implementation("com.mapbox.extension:maps-compose:11.6.0")
     implementation("io.coil-kt:coil:2.7.0")
     implementation(libs.androidx.ui.text.google.fonts)
     testImplementation(libs.junit)

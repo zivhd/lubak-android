@@ -1,6 +1,10 @@
 package com.example.lubak.view
 
 import DataStoreManager
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -23,19 +27,40 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.viewinterop.NoOpUpdate
+import androidx.core.graphics.drawable.toBitmap
 import androidx.navigation.NavController
+import com.example.lubak.R
 import com.example.lubak.ui.theme.LubakTheme
 
 import com.mapbox.geojson.Point
+import com.mapbox.maps.CameraOptions
+import com.mapbox.maps.MapView
 import com.mapbox.maps.MapboxExperimental
+import com.mapbox.maps.Style
 import com.mapbox.maps.extension.compose.MapboxMap
 import com.mapbox.maps.extension.compose.animation.viewport.MapViewportState
+import com.mapbox.maps.plugin.animation.flyTo
+import com.mapbox.maps.plugin.annotation.annotations
+import com.mapbox.maps.plugin.annotation.generated.PointAnnotationManager
+import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
+import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
+import com.mapbox.maps.plugin.gestures.addOnMapClickListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import com.mapbox.maps.plugin.annotation.generated.OnPointAnnotationClickListener
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -87,7 +112,7 @@ fun HomeScreen(navController: NavController){
                 }
             ) { innerPadding ->
 
-                LubakMap(modifier = Modifier.padding(innerPadding))
+                MapScreen(modifier = Modifier.padding(innerPadding))
 
             }
         }
@@ -97,6 +122,7 @@ fun HomeScreen(navController: NavController){
 @OptIn(MapboxExperimental::class)
 @Composable
 fun LubakMap(modifier: Modifier = Modifier) {
+
     MapboxMap(
         modifier = modifier,
         mapViewportState = MapViewportState().apply {
@@ -107,9 +133,84 @@ fun LubakMap(modifier: Modifier = Modifier) {
                 bearing(0.0)
             }
         },
-    )
+    ){
+
+    }
 
 }
+@Composable
+fun MapBoxMap(
+    modifier: Modifier = Modifier,
+    points: List<Point>,
+    onMarkerClick: (Point) -> Unit // Callback for when a marker is clicked
+) {
+    val context = LocalContext.current
+    val marker = remember(context) {
+        context.getDrawable(R.drawable.marker)!!.toBitmap()
+    }
+    var pointAnnotationManager: PointAnnotationManager? by remember {
+        mutableStateOf(null)
+    }
+    AndroidView(
+        factory = {
+            MapView(it).also { mapView ->
+                mapView.getMapboxMap().loadStyleUri(Style.TRAFFIC_DAY)
+                val annotationApi = mapView.annotations
+                pointAnnotationManager = annotationApi.createPointAnnotationManager()
+            }
+        },
+        update = { mapView ->
+            pointAnnotationManager?.let {
+                it.deleteAll() // Clear existing markers
+                points.forEach { point ->
+                    val pointAnnotationOptions = PointAnnotationOptions()
+                        .withPoint(point)
+                        .withIconImage(marker)
+                    val pointAnnotation = it.create(pointAnnotationOptions)
+
+                    // Set up click listener for the marker
+                    it.addClickListener() { clickedPointAnnotation ->
+                        onMarkerClick(clickedPointAnnotation.point)
+                        true
+                    }
+                }
+                if (points.isNotEmpty()) {
+                    mapView.getMapboxMap()
+                        .flyTo(CameraOptions.Builder().zoom(16.0).center(points.first()).build())
+                }
+            }
+        },
+        modifier = modifier
+    )
+}
+
+
+
+@Composable
+fun MapScreen(modifier: Modifier) {
+    val context = LocalContext.current
+    val makatiMarkers = listOf(
+        Point.fromLngLat(121.0244, 14.5547), // Example coordinates for Makati City
+        Point.fromLngLat(121.0250, 14.5560),
+        // Add more points as needed
+    )
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        MapBoxMap(
+            points = makatiMarkers,
+            onMarkerClick = { clickedPoint ->
+                // Handle marker click here
+                // For example, show a Toast or navigate to another screen
+                Toast.makeText(context, "Clicked marker at: ${clickedPoint.latitude()}, ${clickedPoint.longitude()}", Toast.LENGTH_SHORT).show()
+            },
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+}
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
