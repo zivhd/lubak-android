@@ -284,7 +284,7 @@ fun LubakTheme(
     content: @Composable () -> Unit
 ) {
     val colors = if (darkTheme) {
-        darkScheme
+        lightScheme
     } else {
         lightScheme
     }

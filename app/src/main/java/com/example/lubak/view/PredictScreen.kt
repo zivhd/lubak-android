@@ -1,14 +1,21 @@
 package com.example.lubak.view
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -16,201 +23,240 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewModelScope
-import com.example.lubak.api.RetrofitClient
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.lubak.composables.ArsenalButton
 import com.example.lubak.model.PredictionCallback
-import com.example.lubak.model.PredictionResponse
-import com.example.lubak.model.UploadResponse
 import com.example.lubak.viewmodel.CameraViewModel
-import id.zelory.compressor.decodeSampledBitmapFromFile
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.toRequestBody
-import id.zelory.compressor.Compressor
-import id.zelory.compressor.constraint.quality
-import id.zelory.compressor.constraint.resolution
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.File
+import com.example.lubak.viewmodel.PredictViewModel
 
 
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PredictScreen(cameraViewModel: CameraViewModel) {
+fun PredictScreen(
+    cameraViewModel: CameraViewModel,
+
+) {
+    val predictViewModel: PredictViewModel = viewModel()
     val imagePath by cameraViewModel.capturedImagePath.collectAsState()
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
     val location = cameraViewModel.sharedLocation
-    var blobPath by remember { mutableStateOf<String?>(null)}
-    var confidenceLevel by remember { mutableStateOf<Float?>(null)}
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ){
-        if (imagePath != null) {
-            LaunchedEffect(imagePath) {
-                imagePath?.let {
+    var blobPath by remember { mutableStateOf<String?>(null) }
+    var confidenceLevel by remember { mutableStateOf<Float?>(null) }
 
-                    cameraViewModel.uploadImage(context, it) { filepath ->
+    var hasPredicted by remember { mutableStateOf(false) }  // Add a flag
+
+
+    if (imagePath != null && location != null) {
+
+        LaunchedEffect(imagePath) {
+            imagePath?.let {
+                if (!hasPredicted) {
+                    Log.d("PredictScreen", "Starting image upload...")
+                    predictViewModel.uploadImage(context, it) { filepath ->
+                        Log.d("PredictScreen", "Image uploaded: $filepath")
                         blobPath = filepath
-                        Log.d("Upload", blobPath!!)
+                        hasPredicted = true
 
+                        predictViewModel.predictPotholeImage(filepath, object : PredictionCallback {
+                            override fun onSuccess(confidence: Float) {
+                                confidenceLevel = confidence
+                                Log.d("Predict", "Prediction success: $confidence")
+
+                            }
+
+                            override fun onError(errorMessage: String) {
+                                Log.e("Predict", "Prediction error: $errorMessage")
+                                confidenceLevel = 0.0f
+
+                            }
+                        })
                     }
                 }
             }
+        }
 
 
 
-            val bitmap = decodeSampledBitmapFromFile(imagePath!!, 800, 800) // Change dimensions as needed
+
+
+        if (predictViewModel.isLoading) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = MaterialTheme.colorScheme.surface),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.surface),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Top
+        ) {
+            val bitmap = predictViewModel.decodeSampledBitmapFromFile(imagePath!!, 1200, 1200)
 
             bitmap?.let {
                 Image(
                     bitmap = it.asImageBitmap(),
                     contentDescription = "Captured Image",
-
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentScale = ContentScale.Crop
                 )
             } ?: run {
                 Text("Failed to load image.")
             }
-            if (location != null) {
-                Text("Latitude: ${location.latitude}")
-                Text("Latitude: ${location.longitude}")
-            }
 
-            blobPath?.let {
-                Text("blobPath: $blobPath")
-                cameraViewModel.predictPotholeImage(it, object : PredictionCallback {
-                    override fun onSuccess(confidence: Float) {
-                        confidenceLevel = confidence
-                        Log.d("Predict", "Confidence: $confidenceLevel")
+            Column(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .padding(bottom = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp) // Use spacedBy for vertical spacing
+            ) {
+                Text(
+                    "Pothole details:",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .weight(1f) // Make Box take available space
+                    ) {
+                        Column(Modifier.padding(8.dp)) {
+                            Text(
+                                "Confidence",
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                fontSize = 12.sp
+                            )
+                            confidenceLevel?.let { confidenceLevel ->
+                                if (confidenceLevel > 0.0001) {
+                                    val formattedConfidenceLevel = "%.4f".format(confidenceLevel)
+                                    Text(
+                                        formattedConfidenceLevel,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 20.sp,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                } else {
+                                    Text(
+                                        "0.0000",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 20.sp,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                }
+                            }
+
+                        }
                     }
 
-                    override fun onError(errorMessage: String) {
-                        confidenceLevel = 0.0f
-                        Log.e("Predict", errorMessage)
+                    Spacer(modifier = Modifier.width(4.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.secondaryContainer,
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .weight(1f)
+                    ) {
+                        Column(Modifier.padding(8.dp)) {
+                            Text(
+                                "Latitude:",
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                fontSize = 12.sp
+                            )
+                            Text(
+                                text = "%.4f".format(location.latitude),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
                     }
-                })
-            }
-            confidenceLevel?.let { confidenceLevel->
-                if(confidenceLevel > 0.0001) {
-                    Text("Pothole Detected with Confidence: $confidenceLevel")
+
+                    Spacer(modifier = Modifier.width(4.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.tertiaryContainer,
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .weight(1f)
+                    ) {
+                        Column(Modifier.padding(8.dp)) {
+                            Text(
+                                "Longitude:",
+                                color = MaterialTheme.colorScheme.onTertiaryContainer,
+                                fontSize = 12.sp
+                            )
+                            Text(
+                                text = "%.4f".format(location.longitude),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp,
+                                color = MaterialTheme.colorScheme.onTertiaryContainer
+                            )
+                        }
+                    }
                 }
-                else{
-                    Text("No Pothole Detected")
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ArsenalButton(
+                        onClick = { /*TODO*/ },
+                        modifier = Modifier.padding(2.dp),
+                        text = "Delete",
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    )
+
+                    ArsenalButton(
+                        onClick = { /*TODO*/ },
+                        modifier = Modifier.padding(2.dp),
+                        text = "Contribute"
+                    )
                 }
-            }
 
 
-        } else {
-            Text("No image captured yet.")
+            }
         }
-
-
-
     }
 }
 
-fun decodeSampledBitmapFromFile(filePath: String, reqWidth: Int, reqHeight: Int): Bitmap? {
-    // First decode with inJustDecodeBounds=true to check dimensions
-    val options = BitmapFactory.Options().apply {
-        inJustDecodeBounds = true
-    }
-    BitmapFactory.decodeFile(filePath, options)
-
-    // Calculate inSampleSize
-    options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight)
-
-    // Decode bitmap with inSampleSize set
-    options.inJustDecodeBounds = false
-    return BitmapFactory.decodeFile(filePath, options)
-}
-
-fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
-    val (height: Int, width: Int) = options.outHeight to options.outWidth
-    if (height == 0 || width == 0) return 1
-
-    val halfHeight = height / 2
-    val halfWidth = width / 2
-    var inSampleSize = 1
-
-    while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
-        inSampleSize *= 2
-    }
-    return inSampleSize
-}
 
 
 
 
 
-//@Composable
-//fun PredictScreen(cameraViewModel: CameraViewModel) {
-//    val byteArray = cameraViewModel.sharedByteArray
-//    val location = cameraViewModel.sharedLocation
-//    val apiService = RetrofitClient.instance
-//    var predictionResponse by remember { mutableStateOf<PredictionResponse?>(null) }
-//    var uploadResponse by remember { mutableStateOf<UploadResponse?>(null) }
-//    var errorMessage by remember { mutableStateOf<String?>(null) }
-//
-//
-//    if (byteArray != null) {
-//        val requestBody = byteArray.toRequestBody("image/jpeg".toMediaTypeOrNull())
-//        val imagePart = MultipartBody.Part.createFormData("file", "image.jpg", requestBody)
-//
-//        LaunchedEffect(byteArray) {
-//            try {
-//                // Upload the image
-//                val uploadResult = apiService.upload(imagePart)
-//                uploadResponse = uploadResult.body()
-//
-//                try{
-//                 val predictionResult = apiService.predict(uploadResponse!!.fileName)
-//                 predictionResponse = predictionResult.body()
-//                }
-//                catch (e: Exception) {
-//                    errorMessage = e.localizedMessage
-//                }
-//
-//            } catch (e: Exception) {
-//                errorMessage = e.localizedMessage
-//            }
-//        }
-//    } else {
-//        Text("No image to display")
-//    }
-//
-//    Column(
-//        modifier = Modifier.fillMaxSize(),
-//        verticalArrangement = Arrangement.Center,
-//        horizontalAlignment = Alignment.CenterHorizontally
-//    ) {
-//        if(uploadResponse != null){
-//            Text("Uploaded file: ${uploadResponse!!.fileName}")
-//        }
-//
-//        predictionResponse?.let { response ->
-//            if (response.predictions.isNotEmpty()) {
-//                Text("Pothole detected with ${response.predictions[0].confidence} confidence level")
-//            } else {
-//                Text("No potholes detected")
-//            }
-//        }
-//        Text("Location at latitude: ${location!!.latitude} and longitude ${location.longitude} ")
-//
-//        errorMessage?.let {
-//            Text("Error: $it")
-//            Log.e("Error", it)
-//        } ?: run {
-//            Text("Sending image for prediction...")
-//        }
-//    }
-//}
+
+
+

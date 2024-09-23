@@ -12,8 +12,9 @@ data class User(
     @SerializedName("username") val userName: String,
     @SerializedName("first_name") val firstName: String,
     @SerializedName("last_name") val lastName: String,
-    @SerializedName("created_at") val createdAt: LocalDateTime?
+    @SerializedName("created_at") val createdAt: String? // Change to String
 )
+
 
 
 

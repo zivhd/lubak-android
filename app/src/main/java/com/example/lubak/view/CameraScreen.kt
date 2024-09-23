@@ -159,7 +159,9 @@ fun CameraPreviewScreen(cameraViewModel: CameraViewModel,navController: NavContr
         Button(
             onClick = {
                 cameraViewModel.captureImage(imageCapture,context,scope = coroutineScope){
-                    navController.navigate(Screen.PredictScreen.route)
+                    navController.navigate(Screen.PredictScreen.route){
+                        navController.popBackStack()
+                    }
                 }
 
 

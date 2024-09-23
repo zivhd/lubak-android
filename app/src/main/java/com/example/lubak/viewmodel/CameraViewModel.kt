@@ -44,8 +44,6 @@ class CameraViewModel(fusedLocationClient:FusedLocationProviderClient): ViewMode
 
     private val _capturedImagePath = MutableStateFlow<String?>(null)
     val capturedImagePath: StateFlow<String?> = _capturedImagePath.asStateFlow()
-
-
     private val _cameraState = MutableStateFlow(CameraState())
     val cameraState: StateFlow<CameraState> = _cameraState.asStateFlow()
     var sharedByteArray: ByteArray? = null
@@ -135,60 +133,10 @@ class CameraViewModel(fusedLocationClient:FusedLocationProviderClient): ViewMode
         }
     }
 
-     suspend fun uploadImage(context:Context, filePath: String, callback: (String) -> Unit) {
-        val file = File(filePath)
-        // Compress the image
-        val compressedFile = Compressor.compress(context, File(filePath)) {
-            quality(75) // Set quality (1-100)
-            resolution(800, 800)
-            size(2_097_152) // 2 MB
-        }
-        val requestFile = MultipartBody.Part.createFormData("file", compressedFile.name, compressedFile.asRequestBody("image/jpeg".toMediaTypeOrNull()))
-        RetrofitClient.instance.uploadFile(requestFile).enqueue(object : Callback<UploadResponse> {
-            override fun onResponse(call: Call<UploadResponse>, response: Response<UploadResponse>) {
-                if (response.isSuccessful) {
-                    Log.d("Upload", "File uploaded successfully: ${response.body()}")
-                    callback(response.body()!!.fileName)
-                } else {
-                    Log.e("Upload", "Upload failed: ${response.message()}")
-
-                }
-            }
-
-            override fun onFailure(call: Call<UploadResponse>, t: Throwable) {
-                Log.e("Upload", "Upload error: ${t.message}")
-            }
-        })
-
-    }
 
 
-    fun predictPotholeImage(fileName: String, callback: PredictionCallback) {
-        Log.d("Predict","Predict Start")
-        RetrofitClient.instance.predict(fileName).enqueue(object : Callback<PredictionResponse> {
-            override fun onResponse(call: Call<PredictionResponse>, response: Response<PredictionResponse>) {
-                if (response.isSuccessful) {
-                    val responseBody = response.body()
-                    responseBody?.let {
-                        // Assuming it contains a list of predictions
-                        val confidenceLevel = it.predictions.firstOrNull()?.confidence
 
-                        if (confidenceLevel != null) {
-                            callback.onSuccess(confidenceLevel)
-                        } else {
-                            callback.onError("No predictions found.")
-                        }
-                    } ?: callback.onError("Response body is null.")
-                } else {
-                    callback.onError("Error: ${response.message()}")
-                }
-            }
 
-            override fun onFailure(call: Call<PredictionResponse>, t: Throwable) {
-                callback.onError("Failure: ${t.message}")
-            }
-        })
-    }
 
 
 

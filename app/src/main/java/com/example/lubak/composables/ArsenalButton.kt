@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
@@ -16,14 +17,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun ArsenalButton(onClick :  () -> Unit, modifier: Modifier, text: String, fontSize: TextUnit = 16.sp){
+fun ArsenalButton(onClick :  () -> Unit,
+                  modifier: Modifier,
+                  text: String,
+                  fontSize: TextUnit = 16.sp,
+                  containerColor: Color =MaterialTheme.colorScheme.onPrimaryContainer,
+                  contentColor:Color =MaterialTheme.colorScheme.onPrimary){
     Button(
         onClick = onClick,
         modifier = modifier,
         shape = RoundedCornerShape(10),
         colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
-             contentColor = MaterialTheme.colorScheme.onPrimary,
+                containerColor = containerColor,
+             contentColor = contentColor,
 
     )
 

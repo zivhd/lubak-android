@@ -5,11 +5,16 @@ import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
@@ -34,6 +39,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -227,23 +233,26 @@ fun MapScreen(modifier: Modifier, potholes: List<PotholeModel>? = null, navContr
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyTopAppBar(scope: CoroutineScope, drawerState: DrawerState) {
-
-    TopAppBar(colors = topAppBarColors(
-        containerColor = MaterialTheme.colorScheme.primaryContainer,
-        titleContentColor = MaterialTheme.colorScheme.primary,
-    ), title = {
-        Text("Lubak")
-    }, actions = {
-        IconButton(onClick = {
-            scope.launch {
-                drawerState.apply {
-                    if (isClosed) open() else close()
+    TopAppBar(
+        colors = topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.primary,
+        ),
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxSize()) {
+                IconButton(onClick = {
+                    scope.launch {
+                        drawerState.apply {
+                            if (isClosed) open() else close()
+                        }
+                    }
+                }) {
+                    Icon(Icons.Filled.Menu, contentDescription = "More options")
                 }
+                Text("Lubak")
             }
-        }) {
-            Icon(Icons.Filled.MoreVert, contentDescription = "More options")
         }
-    })
+    )
 }
 
 
