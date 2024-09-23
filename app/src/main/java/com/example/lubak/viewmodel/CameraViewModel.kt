@@ -2,51 +2,48 @@ package com.example.lubak.viewmodel
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.ContentResolver
-import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.location.Location
-import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
+import android.os.Environment
 import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.lubak.api.RetrofitClient
+import com.example.lubak.model.PredictionCallback
+import com.example.lubak.model.PredictionResponse
+import com.example.lubak.model.UploadResponse
 import com.example.lubak.state.CameraState
 import com.example.lubak.state.LocationState
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
-import com.mapbox.maps.extension.style.expressions.dsl.generated.has
 import id.zelory.compressor.Compressor
-import id.zelory.compressor.constraint.format
 import id.zelory.compressor.constraint.quality
 import id.zelory.compressor.constraint.resolution
 import id.zelory.compressor.constraint.size
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.InputStream
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
+
 class CameraViewModel(fusedLocationClient:FusedLocationProviderClient): ViewModel() {
+
+    private val _capturedImagePath = MutableStateFlow<String?>(null)
+    val capturedImagePath: StateFlow<String?> = _capturedImagePath.asStateFlow()
 
 
     private val _cameraState = MutableStateFlow(CameraState())
@@ -81,85 +78,52 @@ class CameraViewModel(fusedLocationClient:FusedLocationProviderClient): ViewMode
         launcher.launch(Manifest.permission.CAMERA)
     }
 
+    fun captureImage(
+        imageCapture: ImageCapture,
+        context: Context,
+        scope: CoroutineScope,
+        onCaptureComplete: () -> Unit
+    ) {
+        // Create a file to save the image
+        val photoFile = createFile(context)
 
-    fun captureImage(imageCapture: ImageCapture, context: Context, scope: CoroutineScope,onCaptureComplete: () -> Unit) {
-        val name = "CameraxImage.jpeg"
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image")
-            }
+        // Set up the metadata
+        val metadata = ImageCapture.Metadata().apply {
+            // Set rotation based on device orientation
+            isReversedHorizontal = false // Update if needed
         }
-        val outputOptions = ImageCapture.OutputFileOptions
-            .Builder(
-                context.contentResolver,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues
-            )
+
+        // Capture the image
+        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile)
+            .setMetadata(metadata)
             .build()
 
-        imageCapture.takePicture(
-            outputOptions,
-            ContextCompat.getMainExecutor(context),
+        imageCapture.takePicture(outputOptions, ContextCompat.getMainExecutor(context),
             object : ImageCapture.OnImageSavedCallback {
                 @SuppressLint("MissingPermission")
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    val uri = outputFileResults.savedUri ?: return
-                    Log.d("Success", "Image saved to: $uri")
-
-                    scope.launch {
-                        try {
-                            fusedLocationClient.lastLocation
-                                .addOnSuccessListener { location : Location? ->
-                                    sharedLocation = location
-                                }
-
-                            val file = createFileFromUri(context,uri)
-                            val compressedImageFile = Compressor.compress(context, file!!) {
-                                resolution(1280, 720)
-                                quality(80)
-                                size(2_097_152) // 2 MB
-                            }
-                            val byteArray = compressedImageFile.readBytes()
-                            // Delete the image file after conversion
-                            deleteFile(context.contentResolver, uri)
-                            Log.d("Success", "Success  to read image or delete image")
-                            sharedByteArray = byteArray
-                            onCaptureComplete()
-                        } catch (e: IOException) {
-                            Log.d("Failed", "Failed to read image or delete image: $e")
-                            sharedByteArray = null
-                            onCaptureComplete()
+                    Log.d("CameraViewModel", "Image saved successfully: ${photoFile.absolutePath}")
+                    _capturedImagePath.value = photoFile.absolutePath
+                    fusedLocationClient.lastLocation
+                        .addOnSuccessListener { location : Location? ->
+                            sharedLocation = location
                         }
-                    }
+
+                    onCaptureComplete() // Notify that capture is complete
                 }
 
                 override fun onError(exception: ImageCaptureException) {
-                    Log.d("Failed", "Image capture failed: $exception")
-                    sharedByteArray = null
-                    onCaptureComplete()
+                    Log.e("CameraViewModel", "Error capturing image: ${exception.message}", exception)
                 }
             })
     }
 
-    @Throws(IOException::class)
-    suspend fun uriToByteArray(context: Context, uri: Uri): ByteArray {
-        return withContext(Dispatchers.IO) {
-            context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                inputStream.readBytes()
-            } ?: throw IOException("Unable to open input stream for URI: $uri")
-        }
+    private fun createFile(context: Context): File {
+        // Create a directory and a unique file name for the image
+        val directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File(directory, "${System.currentTimeMillis()}.jpg")
     }
 
-    fun deleteFile(contentResolver: ContentResolver, uri: Uri) {
-        try {
-            contentResolver.delete(uri, null, null)
-            Log.d("Success", "Image file deleted: $uri")
-        } catch (e: Exception) {
-            Log.d("Failed", "Failed to delete image file: $e")
-        }
-    }
 
 
     suspend fun getCameraProvider(context: Context): ProcessCameraProvider =
@@ -171,30 +135,65 @@ class CameraViewModel(fusedLocationClient:FusedLocationProviderClient): ViewMode
         }
     }
 
-    fun createFileFromUri(context: Context, uri: Uri): File? {
-        return try {
-            // Get the input stream from the URI
-            val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
-            if (inputStream != null) {
-                // Create a temporary file
-                val tempFile = File.createTempFile("image_", ".jpg", context.cacheDir)
-                // Write the input stream to the file
-                FileOutputStream(tempFile).use { outputStream ->
-                    val buffer = ByteArray(1024)
-                    var length: Int
-                    while (inputStream.read(buffer).also { length = it } > 0) {
-                        outputStream.write(buffer, 0, length)
-                    }
-                }
-                tempFile
-            } else {
-                null
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
+     suspend fun uploadImage(context:Context, filePath: String, callback: (String) -> Unit) {
+        val file = File(filePath)
+        // Compress the image
+        val compressedFile = Compressor.compress(context, File(filePath)) {
+            quality(75) // Set quality (1-100)
+            resolution(800, 800)
+            size(2_097_152) // 2 MB
         }
+        val requestFile = MultipartBody.Part.createFormData("file", compressedFile.name, compressedFile.asRequestBody("image/jpeg".toMediaTypeOrNull()))
+        RetrofitClient.instance.uploadFile(requestFile).enqueue(object : Callback<UploadResponse> {
+            override fun onResponse(call: Call<UploadResponse>, response: Response<UploadResponse>) {
+                if (response.isSuccessful) {
+                    Log.d("Upload", "File uploaded successfully: ${response.body()}")
+                    callback(response.body()!!.fileName)
+                } else {
+                    Log.e("Upload", "Upload failed: ${response.message()}")
+
+                }
+            }
+
+            override fun onFailure(call: Call<UploadResponse>, t: Throwable) {
+                Log.e("Upload", "Upload error: ${t.message}")
+            }
+        })
+
     }
+
+
+    fun predictPotholeImage(fileName: String, callback: PredictionCallback) {
+        Log.d("Predict","Predict Start")
+        RetrofitClient.instance.predict(fileName).enqueue(object : Callback<PredictionResponse> {
+            override fun onResponse(call: Call<PredictionResponse>, response: Response<PredictionResponse>) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    responseBody?.let {
+                        // Assuming it contains a list of predictions
+                        val confidenceLevel = it.predictions.firstOrNull()?.confidence
+
+                        if (confidenceLevel != null) {
+                            callback.onSuccess(confidenceLevel)
+                        } else {
+                            callback.onError("No predictions found.")
+                        }
+                    } ?: callback.onError("Response body is null.")
+                } else {
+                    callback.onError("Error: ${response.message()}")
+                }
+            }
+
+            override fun onFailure(call: Call<PredictionResponse>, t: Throwable) {
+                callback.onError("Failure: ${t.message}")
+            }
+        })
+    }
+
+
+
+
+
 
 
 

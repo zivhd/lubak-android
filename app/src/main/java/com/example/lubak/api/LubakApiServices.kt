@@ -18,17 +18,15 @@ import retrofit2.http.Part
 
 interface LubakApiServices {
 
-    @POST(LubakApiRoutes.predict)
-    suspend fun predict(
-        @Body image: String
-    ): Response<PredictionResponse>
+    @POST("pothole/predict")
+    fun predict(
+        @Body fileName: String
+    ): Call<PredictionResponse>
 
 
     @Multipart
-    @POST(LubakApiRoutes.upload)
-    suspend fun upload(
-        @Part image: MultipartBody.Part
-    ): Response<UploadResponse>
+    @POST("pothole/upload")
+    fun uploadFile(@Part file: MultipartBody.Part): Call<UploadResponse>
 
     @POST("user/register")
     fun registerUser(@Body user: User): Call<RegisterResponse>

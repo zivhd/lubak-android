@@ -11,3 +11,7 @@ data class Prediction(
     val detection_id: String
 )
 
+interface PredictionCallback {
+    fun onSuccess(confidence: Float)
+    fun onError(errorMessage: String)
+}
