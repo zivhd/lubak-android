@@ -22,18 +22,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import com.example.lubak.composables.CustomNavigationBar
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(navController: NavController) {
     val viewModel: ProfileViewModel = viewModel()
     var user by remember { mutableStateOf<User?>(null) }
     var loading by remember { mutableStateOf(true) }
     val context = LocalContext.current
-
+    var selectedItemIndex by rememberSaveable(){
+        mutableStateOf(1)
+    }
     LaunchedEffect(Unit) {
         viewModel.getUserData(context) { retrievedUser ->
             user = retrievedUser
@@ -46,32 +54,47 @@ fun ProfileScreen(navController: NavController) {
     } else {
         user?.let {
             // Display user data
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                horizontalAlignment =  Alignment.CenterHorizontally
-            ) {
-                Text(text = "Profile", style = MaterialTheme.typography.headlineMedium)
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(text = "Username: ${it.userName}")
-                Text(text = "First Name: ${it.firstName}")
-                Text(text = "Last Name: ${it.lastName}")
-                Text(text = "Email: ${it.email}")
-                Text(text = "Created At: ${it.createdAt ?: "N/A"}")
-                Spacer(modifier = Modifier.height(20.dp))
+            Scaffold(
+                modifier = Modifier.fillMaxSize(),
+                topBar = {
+                    TopAppBar(title = { Text(text = "Profile")})
+                },
+                bottomBar = {
+                    CustomNavigationBar(
+                        navController = navController,
+                        selectedItemIndex = selectedItemIndex,
+                        onItemSelected = { index -> selectedItemIndex = index }
+                    )
+                }
+            ){innerPadding->
 
-                // Logout Button
-                Button(onClick = {
-                    viewModel.viewModelScope.launch {
-                        viewModel.logout(context,navController)
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(text = "Username: ${it.userName}")
+                    Text(text = "First Name: ${it.firstName}")
+                    Text(text = "Last Name: ${it.lastName}")
+                    Text(text = "Email: ${it.email}")
+                    Text(text = "Created At: ${it.createdAt ?: "N/A"}")
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // Logout Button
+                    Button(onClick = {
+                        viewModel.viewModelScope.launch {
+                            viewModel.logout(context, navController)
+                        }
+                    }) {
+                        Text("Logout")
                     }
-                     }) {
-                    Text("Logout")
                 }
             }
-        } ?: run {
-            Text(text = "User data not found", style = MaterialTheme.typography.bodyMedium)
+
+
         }
     }
 }
