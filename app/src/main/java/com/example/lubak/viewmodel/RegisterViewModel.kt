@@ -1,26 +1,16 @@
 package com.example.lubak.viewmodel
 
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.lubak.api.RetrofitClient
-
 import com.example.lubak.model.RegisterResponse
-import com.example.lubak.model.UploadResponse
 import com.example.lubak.model.User
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.time.LocalDateTime
 
 class RegisterViewModel : ViewModel() {
 
@@ -40,6 +30,10 @@ class RegisterViewModel : ViewModel() {
     var lastNameError by mutableStateOf<String?>(null)
     var passwordError by mutableStateOf<String?>(null)
     var confirmPasswordError by mutableStateOf<String?>(null)
+    var passwordLengthError by mutableStateOf<Boolean?>(null)
+    var passwordDigitError by mutableStateOf<Boolean?>(null)
+    var passwordSpecialCharacterError by mutableStateOf<Boolean?>(null)
+    var passwordUppercaseError by mutableStateOf<Boolean?>(null)
 
     fun onEmailChange(newEmail: String) {
         email = newEmail
@@ -59,7 +53,15 @@ class RegisterViewModel : ViewModel() {
 
     fun onPasswordChange(newPassword: String) {
         password = newPassword
+
+        passwordLengthError = hasAtLeast8Characters(newPassword)
+        passwordDigitError = hasAtLeastOneDigit(newPassword)
+        passwordSpecialCharacterError = hasAtLeastOneSpecialCharacter(newPassword)
+        passwordUppercaseError = hasAtLeastOneUppercase(newPassword)
+
+
     }
+
 
     fun onConfirmPasswordChange(newConfirmPassword: String) {
         confirmPassword = newConfirmPassword
@@ -69,7 +71,7 @@ class RegisterViewModel : ViewModel() {
         passwordVisible = !passwordVisible
     }
 
-//    @RequiresApi(Build.VERSION_CODES.O)
+    //    @RequiresApi(Build.VERSION_CODES.O)
 //    fun register(callback: (RegisterResponse) -> Unit) {
 //        // Start loading state
 //        isLoading = true
@@ -115,10 +117,35 @@ class RegisterViewModel : ViewModel() {
 //            }
 //        }
 //    }
+    private fun isValidEmail(email: String): Boolean {
+        val emailRegex = "^[A-Za-z](.*)([@]{1})(.{1,})(\\.)(.{1,})$"
+        return email.matches(emailRegex.toRegex())
+    }
+
+    private fun hasAtLeast8Characters(password: String): Boolean {
+        val lengthRegex = ".{8,}"
+        return password.matches(lengthRegex.toRegex())
+    }
+
+    private fun hasAtLeastOneDigit(password: String): Boolean {
+        val digitRegex = ".*[0-9].*"
+        return password.matches(digitRegex.toRegex())
+    }
+
+    private fun hasAtLeastOneSpecialCharacter(password: String): Boolean {
+        val specialCharRegex = ".*[@#\$%^&+=!].*"
+        return password.matches(specialCharRegex.toRegex())
+    }
+
+    private fun hasAtLeastOneUppercase(password: String): Boolean {
+        val uppercaseRegex = ".*[A-Z].*"
+        return password.matches(uppercaseRegex.toRegex())
+    }
+
 
     fun validateFields(): Boolean {
         var isValid = true
-        emailError = if (email.isBlank()) "Email is required" else null
+        emailError = if (email.isBlank() || isValidEmail(email)) "Email is invalid" else null
         usernameError = if (username.isBlank()) "Username is required" else null
         firstNameError = if (firstName.isBlank()) "First name is required" else null
         lastNameError = if (lastName.isBlank()) "Last name is required" else null
@@ -128,9 +155,15 @@ class RegisterViewModel : ViewModel() {
             confirmPassword != password -> "Passwords do not match"
             else -> null
         }
+        passwordLengthError = hasAtLeast8Characters(password)
+        passwordDigitError = hasAtLeastOneDigit(password)
+        passwordSpecialCharacterError = hasAtLeastOneSpecialCharacter(password)
+        passwordUppercaseError = hasAtLeastOneUppercase(password)
 
         isValid = emailError == null && usernameError == null && firstNameError == null &&
                 lastNameError == null && passwordError == null && confirmPasswordError == null
+                && passwordLengthError == true && passwordDigitError == true && passwordUppercaseError == true &&
+                passwordUppercaseError == true
 
         return isValid
     }
@@ -182,5 +215,6 @@ class RegisterViewModel : ViewModel() {
             Log.e("RegisterViewModel", "Exception during registration", e)
             callback(RegisterResponse(false, "Exception during registration"))
         }
-    }}
+    }
+}
 

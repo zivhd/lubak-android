@@ -254,27 +254,47 @@ val unspecified_scheme = ColorFamily(
     Color.Unspecified, Color.Unspecified, Color.Unspecified, Color.Unspecified
 )
 
+//@Composable
+//fun LubakTheme(
+//    darkTheme: Boolean = isSystemInDarkTheme(), // Use system theme by default
+//    useDynamicColor: Boolean = true, // Whether to use dynamic color (Android 12+)
+//    content: @Composable () -> Unit
+//) {
+//    // Choose color scheme based on parameters
+//    val colorScheme = when {
+//        useDynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+//            val context = LocalContext.current
+//            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+//        }
+//        darkTheme -> darkScheme
+//        else -> lightScheme
+//    }
+//
+//    MaterialTheme(
+//        colorScheme = colorScheme,
+//        typography = AppTypography,
+//        content = content
+//    )
+//}
+
+
 @Composable
 fun LubakTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(), // Use system theme by default
-    useDynamicColor: Boolean = true, // Whether to use dynamic color (Android 12+)
+    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    // Choose color scheme based on parameters
-    val colorScheme = when {
-        useDynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-        darkTheme -> darkScheme
-        else -> lightScheme
+    val colors = if (darkTheme) {
+        darkScheme
+    } else {
+        lightScheme
     }
 
     MaterialTheme(
-        colorScheme = colorScheme,
-        typography = AppTypography,
+        colorScheme = colors,
+        typography = AppTypography, // Define your typography
         content = content
     )
 }
+
 
 

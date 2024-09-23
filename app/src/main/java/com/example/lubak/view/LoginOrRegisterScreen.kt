@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,10 +47,11 @@ fun LoginOrRegisterScreen(navController: NavController) {
                 Image(
                     painterResource(R.drawable.pothole),
                     "Login Image",
-                    modifier = Modifier.size(250.dp)
+                    modifier = Modifier.size(250.dp),
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = "Welcome to Lubak!", fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                Text(text = "Welcome to Lubak!", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
             }
 
             Column(
