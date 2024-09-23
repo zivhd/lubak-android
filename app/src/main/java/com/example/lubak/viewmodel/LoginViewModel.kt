@@ -46,12 +46,21 @@ class LoginViewModel : ViewModel() {
         _isPasswordVisible.value = !_isPasswordVisible.value
     }
 
-    fun login(username: String, password: String, onResult: (Boolean) -> Unit) {
+    fun login(username: String, password: String,context:Context, onResult: (Boolean) -> Unit) {
         val request = LoginRequest(username, password)
         RetrofitClient.instance.login(request).enqueue(object : Callback<LoginResponse> {
             override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                 if (response.isSuccessful) {
                     Log.d("Login",response.body()?.token ?: "Success")
+                    response.body()?.let {
+                        viewModelScope.launch {
+                            response.body()!!.token?.let { it1 ->
+                                DataStoreManager.saveToken(
+                                    context,
+                                    it1
+                                )
+                            }}}
+
                     onResult(true)
                 } else {
                     onResult(false)

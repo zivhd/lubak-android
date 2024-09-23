@@ -115,7 +115,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
         Spacer(modifier = Modifier.height(16.dp))
         ArsenalButton(
             onClick = {
-                loginViewModel.login(email, password) { success ->
+                loginViewModel.login(email, password,context) { success ->
                     Log.d("Login", success.toString())
                     if (success) {
                         navController.popBackStack()
