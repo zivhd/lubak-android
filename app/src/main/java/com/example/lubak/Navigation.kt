@@ -34,7 +34,7 @@ fun Navigation(fusedLocationClient:FusedLocationProviderClient) {
     val context = LocalContext.current
     val tokenFlow: Flow<String?> = DataStoreManager.getToken(context)
     var startDestination by rememberSaveable { mutableStateOf(Screen.LoginOrRegisterScreen.route) }
-    // LaunchedEffect to fetch the token asynchronously
+
     LaunchedEffect(Unit) {
         tokenFlow.collect { token ->
             // Handle the token

@@ -1,6 +1,7 @@
 package com.example.lubak.view
 
 import DataStoreManager
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -39,9 +40,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.viewinterop.NoOpUpdate
 import androidx.core.graphics.drawable.toBitmap
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.lubak.R
+import com.example.lubak.model.PotholeModel
 import com.example.lubak.ui.theme.LubakTheme
+import com.example.lubak.viewmodel.HomeViewModel
+import com.example.lubak.viewmodel.LoginViewModel
 
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
@@ -62,13 +67,19 @@ import com.mapbox.maps.plugin.annotation.generated.OnPointAnnotationClickListene
 
 
 
+@SuppressLint("RememberReturnType")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController){
+fun HomeScreen(navController: NavController,homeViewModel: HomeViewModel = viewModel()){
     val context = LocalContext.current
+
 
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         val scope = rememberCoroutineScope()
+        LaunchedEffect(Unit) {
+        homeViewModel.fetchPotholes()
+        }
+        var potholes = homeViewModel.potholes
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
@@ -112,7 +123,7 @@ fun HomeScreen(navController: NavController){
                 }
             ) { innerPadding ->
 
-                MapScreen(modifier = Modifier.padding(innerPadding))
+                MapScreen(modifier = Modifier.padding(innerPadding),potholes = potholes )
 
             }
         }
@@ -187,13 +198,11 @@ fun MapBoxMap(
 
 
 @Composable
-fun MapScreen(modifier: Modifier) {
+fun MapScreen(modifier: Modifier,potholes: List<PotholeModel>? = null) {
     val context = LocalContext.current
-    val makatiMarkers = listOf(
-        Point.fromLngLat(121.0244, 14.5547), // Example coordinates for Makati City
-        Point.fromLngLat(121.0250, 14.5560),
-        // Add more points as needed
-    )
+    val makatiMarkers = potholes?.map {
+        Point.fromLngLat(it.longitude.toDouble(), it.latitude.toDouble()) // Adjust according to your PotholeModel structure
+    } ?: listOf()
 
     Column(
         modifier = Modifier.fillMaxSize(),
