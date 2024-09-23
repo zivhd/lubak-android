@@ -2,20 +2,13 @@ package com.example.lubak.view
 
 import DataStoreManager
 import android.annotation.SuppressLint
-import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,16 +37,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.viewinterop.NoOpUpdate
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.lubak.R
 import com.example.lubak.model.PotholeModel
-import com.example.lubak.ui.theme.LubakTheme
 import com.example.lubak.viewmodel.HomeViewModel
-import com.example.lubak.viewmodel.LoginViewModel
-
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.MapView
@@ -66,18 +55,16 @@ import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationManager
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
-import com.mapbox.maps.plugin.gestures.addOnMapClickListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import com.mapbox.maps.plugin.annotation.generated.OnPointAnnotationClickListener
-
 
 
 @SuppressLint("RememberReturnType")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController,homeViewModel: HomeViewModel = viewModel()){
+fun HomeScreen(navController: NavController) {
     val context = LocalContext.current
+    val homeViewModel: HomeViewModel = viewModel()
 
 
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)

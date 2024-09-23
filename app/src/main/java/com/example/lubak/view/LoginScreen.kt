@@ -40,7 +40,8 @@ import com.example.lubak.composables.ArsenalButton
 import com.example.lubak.viewmodel.LoginViewModel
 
 @Composable
-fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = viewModel()) {
+fun LoginScreen(navController: NavController) {
+    val loginViewModel: LoginViewModel = viewModel()
     val email = loginViewModel.email.value
     val context = LocalContext.current
     val password = loginViewModel.password.value
@@ -49,7 +50,9 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
 
 
     Column(
-        modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.background),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.background),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

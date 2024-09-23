@@ -44,7 +44,7 @@ import com.example.lubak.viewmodel.PredictViewModel
 fun PredictScreen(
     cameraViewModel: CameraViewModel,
 
-) {
+    ) {
     val predictViewModel: PredictViewModel = viewModel()
     val imagePath by cameraViewModel.capturedImagePath.collectAsState()
     val context = LocalContext.current

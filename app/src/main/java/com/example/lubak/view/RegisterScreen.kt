@@ -27,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -47,12 +46,12 @@ import com.example.lubak.viewmodel.RegisterViewModel
 fun RegisterScreen(navController: NavController) {
 
 
-
     val registerViewModel: RegisterViewModel = viewModel()
     val isLoading = registerViewModel.isLoading
     val context = LocalContext.current
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -70,12 +69,20 @@ fun RegisterScreen(navController: NavController) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Welcome", fontSize = 28.sp, fontWeight = FontWeight.Bold, color= MaterialTheme.colorScheme.onPrimaryContainer)
+                Text(
+                    text = "Welcome",
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
 
             }
 
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "Register to continue", color= MaterialTheme.colorScheme.onPrimaryContainer)
+            Text(
+                text = "Register to continue",
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
             Spacer(modifier = Modifier.height(16.dp))
             Column(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
@@ -113,7 +120,7 @@ fun RegisterScreen(navController: NavController) {
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp),
                     isError = registerViewModel.usernameError != null,
-                            singleLine = true
+                    singleLine = true
                 )
                 registerViewModel.usernameError?.let { error ->
                     Text(
@@ -177,79 +184,79 @@ fun RegisterScreen(navController: NavController) {
                 }
             }
 
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    OutlinedTextField(
-                        value = registerViewModel.password,
-                        onValueChange = { registerViewModel.onPasswordChange(it) },
-                        label = { Text("Password") },
-                        placeholder = { Text("Password") },
-                        visualTransformation = if (registerViewModel.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                        trailingIcon = {
-                            val image = if (registerViewModel.passwordVisible)
-                                Icons.Default.Visibility
-                            else Icons.Filled.VisibilityOff
+            Column(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = registerViewModel.password,
+                    onValueChange = { registerViewModel.onPasswordChange(it) },
+                    label = { Text("Password") },
+                    placeholder = { Text("Password") },
+                    visualTransformation = if (registerViewModel.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val image = if (registerViewModel.passwordVisible)
+                            Icons.Default.Visibility
+                        else Icons.Filled.VisibilityOff
 
-                            val description =
-                                if (registerViewModel.passwordVisible) "Hide password" else "Show password"
+                        val description =
+                            if (registerViewModel.passwordVisible) "Hide password" else "Show password"
 
-                            IconButton(onClick = { registerViewModel.onPasswordVisibilityToggle() }) {
-                                Icon(imageVector = image, contentDescription = description)
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp),
-                        isError = registerViewModel.passwordError != null
-                    )
-                    registerViewModel.passwordLengthError?.let { error ->
-                        if (!error) {
-                            Text(
-                                text = "• Password must be at least 8 characters long.", // Add bullet point
-                                color = MaterialTheme.colorScheme.error,
-                                fontSize = 12.sp,
-                                modifier = Modifier.padding(start = 20.dp)
-
-                            )
+                        IconButton(onClick = { registerViewModel.onPasswordVisibilityToggle() }) {
+                            Icon(imageVector = image, contentDescription = description)
                         }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
+                    isError = registerViewModel.passwordError != null
+                )
+                registerViewModel.passwordLengthError?.let { error ->
+                    if (!error) {
+                        Text(
+                            text = "• Password must be at least 8 characters long.", // Add bullet point
+                            color = MaterialTheme.colorScheme.error,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(start = 20.dp)
 
+                        )
                     }
-                    registerViewModel.passwordDigitError?.let { error ->
-                        if (!error) {
-                            Text(
-                                text = "• Password must contain at least one digit.", // Add bullet point
-                                color = MaterialTheme.colorScheme.error,
-                                fontSize = 12.sp,
-                                modifier = Modifier.padding(start = 20.dp)
 
-                            )
-                        }
-
-                    }
-                    registerViewModel.passwordUppercaseError?.let { error ->
-                        if (!error) {
-                            Text(
-                                text = "• Password must contain at least one uppercase letter", // Add bullet point
-                                color = MaterialTheme.colorScheme.error,
-                                fontSize = 12.sp,
-                                modifier = Modifier.padding(start = 20.dp)
-
-                            )
-                        }
-
-                    }
-                    registerViewModel.passwordSpecialCharacterError?.let { error ->
-                        if (!error) {
-                            Text(
-                                text = "• Password must contain at least one special character.", // Add bullet point
-                                color = MaterialTheme.colorScheme.error,
-                                fontSize = 12.sp,
-                                modifier = Modifier.padding(start = 20.dp)
-
-                            )
-                        }
-
-                    }
                 }
+                registerViewModel.passwordDigitError?.let { error ->
+                    if (!error) {
+                        Text(
+                            text = "• Password must contain at least one digit.", // Add bullet point
+                            color = MaterialTheme.colorScheme.error,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(start = 20.dp)
+
+                        )
+                    }
+
+                }
+                registerViewModel.passwordUppercaseError?.let { error ->
+                    if (!error) {
+                        Text(
+                            text = "• Password must contain at least one uppercase letter", // Add bullet point
+                            color = MaterialTheme.colorScheme.error,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(start = 20.dp)
+
+                        )
+                    }
+
+                }
+                registerViewModel.passwordSpecialCharacterError?.let { error ->
+                    if (!error) {
+                        Text(
+                            text = "• Password must contain at least one special character.", // Add bullet point
+                            color = MaterialTheme.colorScheme.error,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(start = 20.dp)
+
+                        )
+                    }
+
+                }
+            }
 
 
 
@@ -349,11 +356,13 @@ fun RegisterScreen(navController: NavController) {
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier
                         .clickable(
-                            onClick = { navController.navigate("login_screen"){
-                                navController.popBackStack()
-                            } },
+                            onClick = {
+                                navController.navigate("login_screen") {
+                                    navController.popBackStack()
+                                }
+                            },
 
-                        )
+                            )
                 )
             }
 
