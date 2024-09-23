@@ -11,9 +11,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.lubak.view.CameraScreen
 import com.example.lubak.view.HomeScreen
 import com.example.lubak.view.LoginOrRegisterScreen
@@ -81,8 +83,10 @@ fun Navigation(fusedLocationClient: FusedLocationProviderClient) {
         composable(route = Screen.RegisterScreen.route) {
             RegisterScreen(navController = navController)
         }
-        composable(route = Screen.PotholeScreen.route) { backStackEntry ->
-            val potholeId = backStackEntry.arguments?.getString("potholeId")
+        composable(route = Screen.PotholeScreen.route,
+            arguments = listOf(navArgument("potholeId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val potholeId = backStackEntry.arguments?.getInt("potholeId")
             PotholeScreen(potholeId, navController)
         }
     }

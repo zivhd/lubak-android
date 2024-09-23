@@ -15,6 +15,7 @@ import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
+import retrofit2.http.Path
 
 interface LubakApiServices {
 
@@ -41,4 +42,8 @@ interface LubakApiServices {
     @GET("pothole/all")
     fun getAllPotholes(): Call<List<PotholeModel>>
 
+    @GET("pothole/{id}")
+     fun getPotholeDetails(
+        @Path("id") id: Int
+    ): Call<PotholeModel>
 }

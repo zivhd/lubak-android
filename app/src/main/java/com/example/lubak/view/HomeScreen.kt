@@ -72,7 +72,7 @@ fun HomeScreen(navController: NavController) {
         LaunchedEffect(Unit) {
         homeViewModel.fetchPotholes()
         }
-        var potholes = homeViewModel.potholes
+        val potholes = homeViewModel.potholes
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
