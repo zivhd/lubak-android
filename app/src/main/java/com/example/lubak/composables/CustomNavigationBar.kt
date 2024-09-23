@@ -12,12 +12,14 @@ import com.example.lubak.model.BottomNavigationItems
 fun CustomNavigationBar(
     navController: NavController,
     selectedItemIndex: Int,
+    onItemSelected: (Int) -> Unit
 ) {
     NavigationBar {
         BottomNavigationItems.forEachIndexed { index, item ->
             NavigationBarItem(
                 selected = selectedItemIndex == index,
                 onClick = {
+                    onItemSelected(index)
                     navController.navigate(item.route)
                 },
                 label = { Text(item.title) },

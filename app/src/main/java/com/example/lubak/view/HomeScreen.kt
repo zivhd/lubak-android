@@ -100,11 +100,17 @@ fun HomeScreen(navController: NavController) {
             TopAppBar(title = { Text(text = "Explore")})
         },
         bottomBar = {
-            CustomNavigationBar(navController,0,)
+            CustomNavigationBar(
+                navController = navController,
+                selectedItemIndex = selectedItemIndex,
+                onItemSelected = { index -> selectedItemIndex = index }
+            )
         }
     ) { innerPadding ->
 
-            MapScreen(modifier = Modifier.padding(innerPadding),potholes = potholes, navController)
+            MapScreen(modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),potholes = potholes, navController)
 
     }
 
@@ -112,25 +118,7 @@ fun HomeScreen(navController: NavController) {
 
 }
 
-@OptIn(MapboxExperimental::class)
-@Composable
-fun LubakMap(modifier: Modifier = Modifier) {
 
-    MapboxMap(
-        modifier = modifier,
-        mapViewportState = MapViewportState().apply {
-            setCameraOptions {
-                zoom(1.0)
-                center(Point.fromLngLat(121.0244, 14.5547))
-                pitch(0.0)
-                bearing(0.0)
-            }
-        },
-    ) {
-
-    }
-
-}
 
 @Composable
 fun MapBoxMap(
@@ -222,35 +210,12 @@ fun MapScreen(
                     navController.navigate(Screen.PotholeScreen.createRoute(it.id)) // Use the createRoute method
                 }
             },
-            modifier = Modifier.fillMaxSize()
+
         )
     }
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MyTopAppBar(scope: CoroutineScope, drawerState: DrawerState) {
-    TopAppBar(
-        colors = topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            titleContentColor = MaterialTheme.colorScheme.primary,
-        ),
-        title = {
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxSize()) {
-                IconButton(onClick = {
-                    scope.launch {
-                        drawerState.apply {
-                            if (isClosed) open() else close()
-                        }
-                    }
-                }) {
-                    Icon(Icons.Filled.Menu, contentDescription = "More options")
-                }
-                Text("Lubak")
-            }
-        }
-    )
-}
+
 
 

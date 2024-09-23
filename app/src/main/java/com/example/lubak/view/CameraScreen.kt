@@ -1,6 +1,7 @@
 package com.example.lubak.view
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
@@ -35,9 +36,13 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -47,41 +52,63 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.lubak.composables.CustomNavigationBar
 import com.example.lubak.ui.theme.LubakTheme
 import com.example.lubak.viewmodel.CameraViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun CameraScreen(cameraViewModel: CameraViewModel,navController: NavController) {
+fun CameraScreen(cameraViewModel: CameraViewModel, navController: NavController) {
+    val context = LocalContext.current
+    val cameraState by cameraViewModel.cameraState.collectAsState()
+    val locationState by cameraViewModel.locationState.collectAsState()
+    var selectedItemIndex by rememberSaveable { mutableStateOf(2) }
 
-        val context = LocalContext.current
-        val cameraState by cameraViewModel.cameraState.collectAsState()
-        val locationState by cameraViewModel.locationState.collectAsState()
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        cameraViewModel.checkCameraPermission(context)
+        cameraViewModel.checkLocationPermission(context)
+    }
 
-        val launcher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            cameraViewModel.checkCameraPermission(context)
-            cameraViewModel.checkLocationPermission(context)
+    LaunchedEffect(key1 = Unit) {
+        cameraViewModel.checkCameraPermission(context)
+        cameraViewModel.checkLocationPermission(context)
+    }
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            TopAppBar(title = { Text(text = "Contribute") })
+        },
+        bottomBar = {
+            CustomNavigationBar(
+                navController = navController,
+                selectedItemIndex = selectedItemIndex,
+                onItemSelected = { index -> selectedItemIndex = index }
+            )
         }
-        LaunchedEffect(key1 = Unit) {
-            cameraViewModel.checkCameraPermission(context)
-            cameraViewModel.checkLocationPermission(context)
+    ) { paddingValues ->
+        // Apply padding to the main content
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues) // Use padding values from Scaffold
+        ) {
+            when {
+                !cameraState.hasCameraPermission -> {
+                    CameraPermissionNeeded(launcher, cameraViewModel)
+                }
+                !locationState.hasLocationPermission -> {
+                    LocationPermissionNeeded(launcher, cameraViewModel)
+                }
+                cameraState.hasCameraPermission && locationState.hasLocationPermission -> {
+                    CameraPreviewScreen(cameraViewModel, navController)
+                }
+            }
         }
-        when {
-            !cameraState.hasCameraPermission -> {
-                CameraPermissionNeeded(launcher, cameraViewModel)
-            }
-            !locationState.hasLocationPermission -> {
-                LocationPermissionNeeded(launcher, cameraViewModel)
-            }
-            cameraState.hasCameraPermission && locationState.hasLocationPermission -> {
-                CameraPreviewScreen(cameraViewModel, navController)
-            }
-        }
-
-
-
-
+    }
 }
 
 @Composable
@@ -154,7 +181,7 @@ fun CameraPreviewScreen(cameraViewModel: CameraViewModel,navController: NavContr
         contentAlignment = Alignment.BottomCenter,
         modifier = Modifier
             .fillMaxSize()
-            .padding(30.dp),
+
     ) {
         AndroidView({ previewView }, modifier = Modifier.fillMaxSize())
         Button(
