@@ -1,6 +1,5 @@
 package com.example.lubak.view
 
-import android.content.res.Resources.Theme
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -41,7 +40,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.lubak.R
 import com.example.lubak.composables.ArsenalButton
-import com.example.lubak.ui.theme.LubakTheme
 import com.example.lubak.viewmodel.RegisterViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -63,20 +61,21 @@ fun RegisterScreen(navController: NavController) {
         if (isLoading) {
             CircularProgressIndicator()
         } else {
+            Image(
+                painterResource(R.drawable.logo),
+                "Login Image",
+                modifier = Modifier.size(50.dp),
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer)
+            )
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Welcome", fontSize = 28.sp, fontWeight = FontWeight.Bold, color= MaterialTheme.colorScheme.primary)
-                Image(
-                    painterResource(R.drawable.pothole),
-                    "Login Image",
-                    modifier = Modifier.size(50.dp),
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
-                )
+                Text(text = "Welcome", fontSize = 28.sp, fontWeight = FontWeight.Bold, color= MaterialTheme.colorScheme.onPrimaryContainer)
+
             }
 
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "Register to continue", color= MaterialTheme.colorScheme.primary)
+            Text(text = "Register to continue", color= MaterialTheme.colorScheme.onPrimaryContainer)
             Spacer(modifier = Modifier.height(16.dp))
             Column(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
@@ -341,12 +340,13 @@ fun RegisterScreen(navController: NavController) {
                     "Already have an account? ",
                     fontWeight = FontWeight.Thin,
                     fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     "Click Here!",
                     fontWeight = FontWeight.Thin,
                     fontSize = 12.sp,
-                    color = Color.Blue,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier
                         .clickable(
                             onClick = { navController.navigate("login_screen"){

@@ -1,6 +1,5 @@
 package com.example.lubak.view
 
-import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -19,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -27,7 +25,6 @@ import androidx.navigation.NavController
 import com.example.lubak.R
 import com.example.lubak.composables.ArsenalButton
 import com.example.lubak.composables.ArsenalOutlinedButton
-import com.example.lubak.ui.theme.LubakTheme
 
 @Composable
 fun LoginOrRegisterScreen(navController: NavController) {
@@ -45,13 +42,13 @@ fun LoginOrRegisterScreen(navController: NavController) {
                 modifier = Modifier.weight(1f)
             ) {
                 Image(
-                    painterResource(R.drawable.pothole),
+                    painterResource(R.drawable.logo),
                     "Login Image",
                     modifier = Modifier.size(250.dp),
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = "Welcome to Lubak!", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                Text(text = "Welcome to Lubak!", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
             }
 
             Column(

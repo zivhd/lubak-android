@@ -3,6 +3,7 @@ package com.example.lubak.view
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -51,19 +53,21 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Image(
+            painterResource(R.drawable.logo),
+            "Login Image",
+            modifier = Modifier.size(50.dp),
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer)
+        )
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "Welcome back!", fontSize = 28.sp, fontWeight = FontWeight.Bold)
-            Image(
-                painterResource(R.drawable.pothole),
-                "Login Image",
-                modifier = Modifier.size(50.dp)
-            )
+            Text(text = "Welcome back!", fontSize = 28.sp, fontWeight = FontWeight.Bold , color = MaterialTheme.colorScheme.onPrimaryContainer )
+
         }
 
         Spacer(modifier = Modifier.height(4.dp))
-        Text(text = "Login to your account")
+        Text(text = "Login to your account",  color = MaterialTheme.colorScheme.onPrimaryContainer)
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
             maxLines = 1,
@@ -136,12 +140,20 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
                 "Not yet registered? ",
                 fontWeight = FontWeight.Thin,
                 fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 "Click Here!",
                 fontWeight = FontWeight.Thin,
                 fontSize = 12.sp,
-                color = Color.Blue
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier
+                    .clickable(
+                        onClick = { navController.navigate("register_screen"){
+                            navController.popBackStack()
+                        } },
+
+                        )
             )
         }
     }
