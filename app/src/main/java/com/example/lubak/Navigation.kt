@@ -22,8 +22,10 @@ import com.example.lubak.view.PotholeScreen
 import com.example.lubak.view.PredictScreen
 import com.example.lubak.view.RegisterScreen
 import com.example.lubak.view.Screen
+import com.example.lubak.view.SplashScreen
 import com.example.lubak.viewmodel.CameraViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -33,9 +35,14 @@ fun Navigation(fusedLocationClient: FusedLocationProviderClient) {
     val cameraViewModel = CameraViewModel(fusedLocationClient)
     val context = LocalContext.current
     val tokenFlow: Flow<String?> = DataStoreManager.getToken(context)
-    var startDestination by rememberSaveable { mutableStateOf(Screen.LoginOrRegisterScreen.route) }
+
+    // State to hold the current route
+    var startDestination by rememberSaveable { mutableStateOf(Screen.SplashScreen.route) }
 
     LaunchedEffect(Unit) {
+        // Display the splash screen for 2 seconds
+        delay(2000)
+
         tokenFlow.collect { token ->
             Log.d("Token", "Retrieved token: $token")
             startDestination = if (!token.isNullOrEmpty()) {
@@ -43,10 +50,19 @@ fun Navigation(fusedLocationClient: FusedLocationProviderClient) {
             } else {
                 Screen.LoginOrRegisterScreen.route
             }
+
+            // Navigate to the determined screen
+            navController.navigate(startDestination) {
+                // Clear back stack to prevent returning to splash screen
+                popUpTo(Screen.SplashScreen.route) { inclusive = true }
+            }
         }
     }
 
-    NavHost(navController = navController, startDestination = startDestination) {
+    NavHost(navController = navController, startDestination = Screen.SplashScreen.route) {
+        composable(route = Screen.SplashScreen.route) {
+            SplashScreen()
+        }
         composable(route = Screen.HomeScreen.route) {
             HomeScreen(navController = navController)
         }
@@ -65,10 +81,10 @@ fun Navigation(fusedLocationClient: FusedLocationProviderClient) {
         composable(route = Screen.RegisterScreen.route) {
             RegisterScreen(navController = navController)
         }
-        // Add PotholeScreen with potholeId argument
         composable(route = Screen.PotholeScreen.route) { backStackEntry ->
             val potholeId = backStackEntry.arguments?.getString("potholeId")
-            PotholeScreen(potholeId, navController) // Pass the potholeId to PotholeScreen
+            PotholeScreen(potholeId, navController)
         }
     }
 }
+
