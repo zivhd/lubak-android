@@ -42,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -95,7 +96,7 @@ fun CameraPermissionNeeded(launcher:ManagedActivityResultLauncher<String, Boolea
         ) {
         Text("Camera Permission Needed", fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(16.dp))
-        Text("The application needs access to your camera, which is required to contribute and share the potholes you see!")
+        Text("The application needs access to your camera, which is required to contribute and share the potholes you see!", textAlign =  TextAlign.Center)
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = { cameraViewModel.requestCameraPermission(launcher) }) {
             Text(text = "Request Camera Permission")
@@ -118,7 +119,7 @@ fun LocationPermissionNeeded(launcher:ManagedActivityResultLauncher<String, Bool
         ) {
         Text("Location Permission Needed", fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(16.dp))
-        Text("The application needs access to your location, which is required to contribute and share the potholes you see!")
+        Text("The application needs access to your location, which is required to contribute and share the potholes you see!", textAlign =  TextAlign.Center)
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = { cameraViewModel.requestLocationPermission(launcher) }) {
             Text(text = "Request Location Permission")

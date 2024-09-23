@@ -51,6 +51,9 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.lubak.R
+import com.example.lubak.composables.CustomNavigationBar
+import com.example.lubak.model.BottomNavigationItem
+import com.example.lubak.model.BottomNavigationItems
 import com.example.lubak.model.PotholeModel
 import com.example.lubak.viewmodel.HomeViewModel
 import com.mapbox.geojson.Point
@@ -71,12 +74,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.select
 
-data class BottomNavigationItem(
-    val title:String,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector,
-    val route:String
-)
+
 
 
 
@@ -85,36 +83,11 @@ data class BottomNavigationItem(
 @Composable
 fun HomeScreen(navController: NavController) {
 
-    val items = listOf(
-        BottomNavigationItem(
-            title = "Explore",
-            selectedIcon = Icons.Filled.Map,
-            unselectedIcon = Icons.Outlined.Map,
-            route = Screen.HomeScreen.route
-        ),
-        BottomNavigationItem(
-            title = "Profile",
-            selectedIcon = Icons.Filled.Person,
-            unselectedIcon = Icons.Outlined.Person,
-            route = ""
-        ),
-        BottomNavigationItem(
-            title = "Contribute",
-            selectedIcon = Icons.Filled.Add,
-            unselectedIcon = Icons.Outlined.Add,
-            route = Screen.CameraScreen.route
-        )
-    )
-    val context = LocalContext.current
+
     val homeViewModel: HomeViewModel = viewModel()
 
-
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
     var selectedItemIndex by rememberSaveable(){
         mutableStateOf(0)
-
-
     }
     LaunchedEffect(Unit) {
         homeViewModel.fetchPotholes()
@@ -127,27 +100,7 @@ fun HomeScreen(navController: NavController) {
             TopAppBar(title = { Text(text = "Explore")})
         },
         bottomBar = {
-            NavigationBar {
-                items.forEachIndexed {index,item ->
-                    NavigationBarItem(
-                        selected = selectedItemIndex == index,
-                        onClick = {
-                            selectedItemIndex = index
-                            navController.navigate(item.route)
-                        },
-                        label = { Text(item.title) },
-                        icon = {
-                            Icon(
-                                imageVector = if(index == selectedItemIndex){
-                                    item.selectedIcon
-                                } else item.unselectedIcon,
-                                contentDescription = item.title
-                            )
-                        }
-                    )
-
-                }
-            }
+            CustomNavigationBar(navController,0,)
         }
     ) { innerPadding ->
 
