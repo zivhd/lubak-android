@@ -145,7 +145,7 @@ class RegisterViewModel : ViewModel() {
 
     fun validateFields(): Boolean {
         var isValid = true
-        emailError = if (email.isBlank() || isValidEmail(email)) "Email is invalid" else null
+        emailError = if (email.isBlank() || !isValidEmail(email)) "Email is invalid" else null
         usernameError = if (username.isBlank()) "Username is required" else null
         firstNameError = if (firstName.isBlank()) "First name is required" else null
         lastNameError = if (lastName.isBlank()) "Last name is required" else null
