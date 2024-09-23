@@ -22,6 +22,7 @@ import com.example.lubak.view.LoginOrRegisterScreen
 import com.example.lubak.view.LoginScreen
 import com.example.lubak.view.PotholeScreen
 import com.example.lubak.view.PredictScreen
+import com.example.lubak.view.ProfileScreen
 import com.example.lubak.view.RegisterScreen
 import com.example.lubak.view.Screen
 import com.example.lubak.view.SplashScreen
@@ -82,6 +83,9 @@ fun Navigation(fusedLocationClient: FusedLocationProviderClient) {
         }
         composable(route = Screen.RegisterScreen.route) {
             RegisterScreen(navController = navController)
+        }
+        composable(route = Screen.ProfileScreen.route){
+            ProfileScreen(navController = navController)
         }
         composable(route = Screen.PotholeScreen.route,
             arguments = listOf(navArgument("potholeId") { type = NavType.IntType })

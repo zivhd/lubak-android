@@ -27,7 +27,7 @@ val BottomNavigationItems = listOf(
         title = "Profile",
         selectedIcon = Icons.Filled.Person,
         unselectedIcon = Icons.Outlined.Person,
-        route = ""
+        route = Screen.ProfileScreen.route
     ),
     BottomNavigationItem(
         title = "Contribute",
