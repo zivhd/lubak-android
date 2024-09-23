@@ -32,14 +32,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lubak.composables.ArsenalButton
+import com.example.lubak.model.PotholeCallback
 import com.example.lubak.model.PredictionCallback
 import com.example.lubak.viewmodel.CameraViewModel
 import com.example.lubak.viewmodel.PredictViewModel
+import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PredictScreen(
     cameraViewModel: CameraViewModel,
@@ -49,6 +51,7 @@ fun PredictScreen(
     val imagePath by cameraViewModel.capturedImagePath.collectAsState()
     val context = LocalContext.current
     val location = cameraViewModel.sharedLocation
+
     var blobPath by remember { mutableStateOf<String?>(null) }
     var confidenceLevel by remember { mutableStateOf<Float?>(null) }
 
@@ -56,8 +59,11 @@ fun PredictScreen(
 
 
     if (imagePath != null && location != null) {
+        val latitude = location.latitude.toFloat()
+        val longitude = location.longitude.toFloat()
 
         LaunchedEffect(imagePath) {
+
             imagePath?.let {
                 if (!hasPredicted) {
                     Log.d("PredictScreen", "Starting image upload...")
@@ -240,7 +246,26 @@ fun PredictScreen(
                     )
 
                     ArsenalButton(
-                        onClick = { /*TODO*/ },
+                        onClick = {
+                        predictViewModel.viewModelScope.launch {
+                            confidenceLevel?.let {
+                                blobPath?.let { it1 ->
+                                    predictViewModel.contributePothole(context,
+                                        it,latitude,longitude, it1, object: PotholeCallback{
+                                            override fun onSuccess(message: String) {
+                                                Log.d("Contribute",message)
+                                            }
+
+                                            override fun onError(errorMessage: String) {
+                                                Log.d("Contribute",errorMessage)
+                                            }
+
+                                        } )
+                                }
+                            }
+                        }
+
+                        },
                         modifier = Modifier.padding(2.dp),
                         text = "Contribute"
                     )

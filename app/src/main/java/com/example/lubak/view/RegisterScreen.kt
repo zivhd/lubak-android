@@ -107,9 +107,6 @@ fun RegisterScreen(navController: NavController) {
             }
 
 
-
-
-
             Column(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
                     value = registerViewModel.username,

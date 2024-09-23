@@ -24,6 +24,10 @@ interface LubakApiServices {
     ): Call<PredictionResponse>
 
 
+    @POST("pothole/contribute")
+    fun contribute(@Body pothole:PotholeModel): Call<PotholeModel>
+
+
     @Multipart
     @POST("pothole/upload")
     fun uploadFile(@Part file: MultipartBody.Part): Call<UploadResponse>

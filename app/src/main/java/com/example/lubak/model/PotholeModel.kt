@@ -9,3 +9,8 @@ data class PotholeModel(
     val file_name: String?
 )
 
+interface PotholeCallback {
+    fun onSuccess(message:String)
+    fun onError(errorMessage: String)
+}
+

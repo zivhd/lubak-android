@@ -1,5 +1,6 @@
 package com.example.lubak.viewmodel
 
+import DataStoreManager
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -9,13 +10,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.lubak.api.RetrofitClient
+import com.example.lubak.model.PotholeCallback
+import com.example.lubak.model.PotholeModel
 import com.example.lubak.model.PredictionCallback
 import com.example.lubak.model.PredictionResponse
 import com.example.lubak.model.UploadResponse
+import com.example.lubak.model.User
 import id.zelory.compressor.Compressor
 import id.zelory.compressor.constraint.quality
 import id.zelory.compressor.constraint.resolution
 import id.zelory.compressor.constraint.size
+import kotlinx.coroutines.flow.Flow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -26,6 +31,7 @@ import java.io.File
 
 class PredictViewModel : ViewModel() {
     var isLoading by mutableStateOf(false)
+
 
 
     fun decodeSampledBitmapFromFile(filePath: String, reqWidth: Int, reqHeight: Int): Bitmap? {
@@ -117,4 +123,57 @@ class PredictViewModel : ViewModel() {
         })
 
     }
+
+    suspend fun contributePothole(
+        context: Context,
+        confidence: Float,
+        latitude: Float,
+        longitude: Float,
+        fileName: String,
+        callback: PotholeCallback
+    ) {
+        isLoading = true
+        val userFlow: Flow<User?> = DataStoreManager.getUser(context)
+        var userId: Int? = null
+        userFlow.collect { user ->
+            user?.let {
+                userId = it.id
+                Log.d("User", userId.toString())
+                if (userId != null) {
+                    Log.d("Contribute", "userId ${userId}")
+                    val pothole = PotholeModel(0, latitude, longitude, userId!!, confidence, fileName)
+                    RetrofitClient.instance.contribute(pothole).enqueue(object : Callback<PotholeModel> {
+                        override fun onResponse(
+                            call: Call<PotholeModel>,
+                            response: Response<PotholeModel>
+                        ) {
+                            if (response.isSuccessful) {
+                                isLoading = false
+                                Log.d("Contribute", "Contribute success: ${response.body()}")
+                                callback.onSuccess("Contribute success: ${response.body()}")
+
+                            } else {
+                                Log.e("Contribute", "Contribute failed: ${response.message()}")
+                                callback.onError("Contribute failed: ${response.message()}")
+
+                            }
+                        }
+
+                        override fun onFailure(call: Call<PotholeModel>, t: Throwable) {
+                            isLoading = false
+                            Log.e("Contribute", "Contribute error: ${t.message}")
+                            callback.onError("Contribute error: ${t.message}")
+                        }
+                    })
+
+
+                }
+            }
+        }
+
+
+
+    }
+
+
 }

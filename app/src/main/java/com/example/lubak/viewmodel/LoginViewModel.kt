@@ -59,7 +59,15 @@ class LoginViewModel : ViewModel() {
                                     context,
                                     it1
                                 )
-                            }}}
+                            }
+                            response.body()!!.user.let { it1 ->
+                                DataStoreManager.saveUser(
+                                    context,
+                                    it1
+                                )
+                            }
+                        }
+                    }
 
                     onResult(true)
                 } else {
