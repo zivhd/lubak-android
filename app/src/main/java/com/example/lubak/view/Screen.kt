@@ -7,4 +7,7 @@ sealed class Screen(val route: String) {
     object LoginScreen: Screen("login_screen")
     object LoginOrRegisterScreen: Screen("login_or_register_screen")
     object RegisterScreen: Screen ("register_screen")
+    object PotholeScreen : Screen("pothole_screen/{potholeId}") {
+        fun createRoute(potholeId: Int) = "pothole_screen/$potholeId"
+    }
 }

@@ -123,7 +123,7 @@ fun HomeScreen(navController: NavController,homeViewModel: HomeViewModel = viewM
                 }
             ) { innerPadding ->
 
-                MapScreen(modifier = Modifier.padding(innerPadding),potholes = potholes )
+                MapScreen(modifier = Modifier.padding(innerPadding),potholes = potholes,navController )
 
             }
         }
@@ -198,10 +198,9 @@ fun MapBoxMap(
 
 
 @Composable
-fun MapScreen(modifier: Modifier,potholes: List<PotholeModel>? = null) {
-    val context = LocalContext.current
+fun MapScreen(modifier: Modifier, potholes: List<PotholeModel>? = null, navController: NavController) {
     val makatiMarkers = potholes?.map {
-        Point.fromLngLat(it.longitude.toDouble(), it.latitude.toDouble()) // Adjust according to your PotholeModel structure
+        Point.fromLngLat(it.longitude.toDouble(), it.latitude.toDouble())
     } ?: listOf()
 
     Column(
@@ -210,14 +209,18 @@ fun MapScreen(modifier: Modifier,potholes: List<PotholeModel>? = null) {
         MapBoxMap(
             points = makatiMarkers,
             onMarkerClick = { clickedPoint ->
-                // Handle marker click here
-                // For example, show a Toast or navigate to another screen
-                Toast.makeText(context, "Clicked marker at: ${clickedPoint.latitude()}, ${clickedPoint.longitude()}", Toast.LENGTH_SHORT).show()
+                val selectedPothole = potholes?.firstOrNull {
+                    it.longitude.toDouble() == clickedPoint.longitude() && it.latitude.toDouble() == clickedPoint.latitude()
+                }
+                selectedPothole?.let {
+                    navController.navigate(Screen.PotholeScreen.createRoute(it.id)) // Use the createRoute method
+                }
             },
             modifier = Modifier.fillMaxSize()
         )
     }
 }
+
 
 
 
